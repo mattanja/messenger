@@ -1,4 +1,4 @@
 messenger
 =========
 
-mailing list manager
+mailing list manager based on play! framework

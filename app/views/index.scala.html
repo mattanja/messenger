@@ -1,7 +1,23 @@
-@(message: String)
+@(lists: List[Mailinglist], listForm: Form[String])
 
-@main("Welcome to Play 2.1") {
+@import helper._
+
+@main("Mailing list") {
     
-    @play20.welcome(message)
+    <h1>@lists.size list(s)</h1>
     
+    <ul>
+    	@lists.map { list =>
+    		<li>
+    			@list.name
+    		</li>
+    	}
+    </ul>
+    
+	<h2>Create new list</h2>
+	@form(routes.List.newList) {
+		@inputText(listForm("name"))
+		<input type="submit" value="Create" />
+	}
+
 }

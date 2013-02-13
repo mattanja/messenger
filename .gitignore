@@ -19,6 +19,7 @@ test-result
 server.pid
 *.iml
 *.eml
+/bin
 
 # play! original gitignore
 .history

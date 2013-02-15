@@ -10,13 +10,23 @@
     	@lists.map { list =>
     		<li>
     			@list.name
+    			
+    			@form(routes.List.delete(list.name)) {
+                    <input type="submit" value="Delete" />
+                }
     		</li>
     	}
     </ul>
     
 	<h2>Create new list</h2>
+
+	@listForm.globalErrors.map { error =>
+		<div>@error</div>
+	}
+
 	@form(routes.List.newList) {
 		@inputText(listForm("name"))
+		
 		<input type="submit" value="Create" />
 	}
 

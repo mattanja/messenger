@@ -2,14 +2,26 @@
  
 # --- !Ups
 
---CREATE SEQUENCE mailinglist_id_seq;
-CREATE TABLE mailinglist (
+create table mailinglist (
     --id integer NOT NULL DEFAULT nextval('task_id_seq'),
-    name varchar(255)
+    name varchar(255) not null primary key
 );
-ALTER TABLE mailinglist ADD CONSTRAINT name_unique UNIQUE(name);
+
+create table user (
+  email                     varchar(255) not null primary key,
+  name                      varchar(255) not null,
+  password                  varchar(255) not null
+);
+
+create table mailinglist_member (
+  mailinglist_name          varchar(255) not null,
+  user_email                varchar(255) not null,
+  foreign key(mailinglist_name) references mailinglist(name) on delete cascade,
+  foreign key(user_email)   references user(email) on delete cascade
+);
 
 # --- !Downs
- 
-DROP TABLE mailinglist;
---DROP SEQUENCE task_id_seq;
+
+drop table if exists mailinglist_member;
+drop table if exists user;
+drop table if exists mailinglist;

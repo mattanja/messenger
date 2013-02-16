@@ -5,6 +5,12 @@
 # Home page
 GET     /                           controllers.Application.index
 
+# Authentication
+GET     /login                      controllers.Application.login
+POST    /login                      controllers.Application.authenticate
+GET     /logout                     controllers.Application.logout
+
+# Lists
 GET		/lists						controllers.List.index
 POST	/list/newList				controllers.List.newList
 GET		/list/:name					controllers.List.edit(name: String)

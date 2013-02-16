@@ -1,8 +1,8 @@
-@(lists: List[Mailinglist], listForm: Form[String])
+@(lists: List[Mailinglist], listForm: Form[String], user: User)
 
 @import helper._
 
-@main("Mailing list") {
+@main("Mailing list", user) {
     
     <h1>@lists.size list(s)</h1>
     

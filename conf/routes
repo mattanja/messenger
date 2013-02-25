@@ -13,8 +13,13 @@ GET     /logout                     controllers.Application.logout
 # Lists
 GET		/lists						controllers.List.index
 POST	/list/newList				controllers.List.newList
-GET		/list/:name					controllers.List.edit(name: String)
-POST	/list/:name/delete			controllers.List.delete(name: String)
+GET		/list/:email				controllers.List.edit(email: String)
+POST	/list/:email/delete			controllers.List.delete(email: String)
+
+# Users / Members
+GET		/user/:email				controllers.List.getUser(email: String)
+POST	/user/:email				controllers.List.updateUser(email: String)
+DELETE	/user/:email				controllers.List.deleteUser(email: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

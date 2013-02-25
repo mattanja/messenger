@@ -5,31 +5,31 @@ import anorm.SqlParser._
 import play.api.db._
 import play.api.Play.current
 
-case class Mailinglist(name: String)
+case class Mailinglist(email: String)
 
 object Mailinglist {
 
   val mailinglist = {
     // TODO! http://www.playframework.com/documentation/2.1.0/ScalaAnorm
     //get[String]("name") ~
-    get[String]("name") map {
-      case name => Mailinglist(name)
+    get[String]("email") map {
+      case email => Mailinglist(email)
     }
   }
 
   def all(): List[Mailinglist] = DB.withConnection {
-    implicit c => SQL("select * from mailinglist").as(mailinglist *)
+    implicit c => SQL("select email from mailinglist").as(mailinglist *)
   }
   
-  def create(name: String) {
+  def create(email: String) {
     DB.withConnection { implicit c =>
-      SQL("insert into mailinglist (name) values ({name})").on('name -> name).executeUpdate()
+      SQL("insert into mailinglist (email) values ({email})").on('email -> email).executeUpdate()
     }
   }
   
-  def delete(name: String) {
+  def delete(email: String) {
     DB.withConnection { implicit c =>
-      SQL("delete from mailinglist where name = {name}").on('name -> name).executeUpdate()
+      SQL("delete from mailinglist where email = {email}").on('email -> email).executeUpdate()
     }
   }
 }

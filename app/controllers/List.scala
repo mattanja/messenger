@@ -8,7 +8,13 @@ import play.api.libs.concurrent._
 import models._
 
 object List extends Controller with Secured {
-  val listForm = Form("name" -> nonEmptyText)
+  
+  
+  /**
+   * Define the form object (kind of "view model")
+   * http://www.playframework.com/documentation/2.1.0/ScalaForms
+   */
+  val listForm = Form("email" -> email)
 
   /**
    *
@@ -30,9 +36,9 @@ object List extends Controller with Secured {
         User.findByEmail(username).map { user =>
           listForm.bindFromRequest.fold(
             errors => Promise.pure(BadRequest(views.html.index(Mailinglist.all(), errors, user))),
-            name => {
+            email => {
               try {
-                Mailinglist.create(name)
+                Mailinglist.create(email)
                 Promise.pure(Redirect(routes.List.index))
               } catch {
                 case e: Exception => {
@@ -52,9 +58,23 @@ object List extends Controller with Secured {
   /**
    *
    */
-  def delete(name: String) = Action {
-    Mailinglist.delete(name)
+  def delete(email: String) = Action {
+    Mailinglist.delete(email)
     Redirect(routes.List.index)
   }
 
+  /**
+   * Get the user information.
+   */
+  def getUser(email: String) = ???
+  
+  /**
+   * Update user data and lists.
+   */
+  def updateUser(email: String) = ???
+  
+  /**
+   * Delete user.
+   */
+  def deleteUser(email: String) = ???
 }

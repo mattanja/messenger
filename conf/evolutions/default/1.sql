@@ -4,7 +4,7 @@
 
 create table mailinglist (
     --id integer NOT NULL DEFAULT nextval('task_id_seq'),
-    name varchar(255) not null primary key
+    email varchar(255) not null primary key
 );
 
 create table user (
@@ -14,9 +14,9 @@ create table user (
 );
 
 create table mailinglist_member (
-  mailinglist_name          varchar(255) not null,
+  mailinglist_email         varchar(255) not null,
   user_email                varchar(255) not null,
-  foreign key(mailinglist_name) references mailinglist(name) on delete cascade,
+  foreign key(mailinglist_email) references mailinglist(email) on delete cascade,
   foreign key(user_email)   references user(email) on delete cascade
 );
 

@@ -8,7 +8,7 @@ object Global extends GlobalSettings {
   
   override def onStart(app: Application) {
     InitialData.insert()
-    
+       
     val handlerFactory = new MessengerMessageHandlerFactory
     val smtpServer = new SMTPServer(handlerFactory)
     smtpServer.setPort(8025)

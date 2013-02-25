@@ -9,9 +9,9 @@
     <ul>
     	@lists.map { list =>
     		<li>
-    			@list.name
+    			@list.email
     			
-    			@form(routes.List.delete(list.name)) {
+    			@form(routes.List.delete(list.email)) {
                     <input type="submit" value="Delete" />
                 }
     		</li>
@@ -25,7 +25,7 @@
 	}
 
 	@form(routes.List.newList) {
-		@inputText(listForm("name"))
+		@inputText(listForm("email"))
 		
 		<input type="submit" value="Create" />
 	}

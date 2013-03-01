@@ -6,6 +6,7 @@ import play.api.data._
 import play.api.data.Forms._
 import play.api.libs.concurrent._
 import models._
+import org.omg.CosNaming.NamingContextPackage.NotFound
 
 object List extends Controller with Secured {
   
@@ -66,15 +67,22 @@ object List extends Controller with Secured {
   /**
    * Get the user information.
    */
-  def getUser(email: String) = ???
+  def getUser(email: String) = IsAuthenticated { username =>
+    _ =>
+      User.findByEmail(username).map { user =>
+        User.findByEmail(email).map { detailUser =>
+          Ok(views.html.List.user(user, detailUser))
+        }.getOrElse(play.api.mvc.Results.NotFound("User not found"))
+      }.getOrElse(Forbidden("Must be logged in"))
+  }
   
   /**
    * Update user data and lists.
    */
-  def updateUser(email: String) = ???
+  def updateUser(email: String) = TODO
   
   /**
    * Delete user.
    */
-  def deleteUser(email: String) = ???
+  def deleteUser(email: String) = TODO
 }

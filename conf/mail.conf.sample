@@ -1,0 +1,12 @@
+{
+  host: "smtp.yourserver.com",
+  smtp {
+    auth: true,
+    port: "587",
+    starttls.enable: true,
+    username: "username",
+    password: "password",
+  },
+  transport.protocol: "smtp",
+  debug: true,
+}

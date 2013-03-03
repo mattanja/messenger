@@ -7,6 +7,10 @@ import play.api.Play.current
 
 case class Mailinglist(email: String)
 
+/**
+ * This uses ScalaAnorm, packaged with play! framework 2
+ * https://github.com/playframework/Play20/wiki/ScalaAnorm
+ */
 object Mailinglist {
 
   val mailinglist = {
@@ -32,4 +36,16 @@ object Mailinglist {
       SQL("delete from mailinglist where email = {email}").on('email -> email).executeUpdate()
     }
   }
+  
+  /**
+   * Retrieve a Mailinglist from email.
+   */
+  def findByEmail(email: String): Option[Mailinglist] = {
+    DB.withConnection { implicit connection =>
+      SQL("select * from mailinglist where email = {email}").on(
+        'email -> email
+      ).as(Mailinglist.mailinglist.singleOpt)
+    }
+  }
+  
 }

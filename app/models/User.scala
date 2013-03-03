@@ -8,6 +8,10 @@ import anorm.SqlParser._
 
 case class User(email: String, name: String, password: String)
 
+/**
+ * This uses ScalaAnorm, packaged with play! framework 2
+ * https://github.com/playframework/Play20/wiki/ScalaAnorm
+ */
 object User {
   
   // -- Parsers

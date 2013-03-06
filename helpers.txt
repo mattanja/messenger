@@ -1,0 +1,5 @@
+** SMTP Dummy Server ***
+This tool provides a dummy server for the emails sent.
+Very easy to use (link below).
+the email conf should have auth: false
+http://www.aboutmyip.com/AboutMyXApp/DevNullSmtp.jsp

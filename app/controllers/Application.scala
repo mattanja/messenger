@@ -7,7 +7,8 @@ import play.api.data.Forms._
 import play.api.libs.concurrent._
 import models._
 
-object Application extends Controller {
+trait Application extends Controller {
+  this: Controller =>
   
   def index = Action {
     Redirect(routes.List.index)
@@ -52,7 +53,7 @@ object Application extends Controller {
   }
 }
 
-
+object Application extends Controller with Application
 /**
  * Provide security features
  */

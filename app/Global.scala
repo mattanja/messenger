@@ -1,30 +1,33 @@
 import play.api._
-
 import models._
 import anorm._
 import org.subethamail.smtp.server._
+import play.api.db.DB
 
 object Global extends GlobalSettings {
 
-  val smtpServer = new SMTPServer(new MessengerMessageHandlerFactory)
-  smtpServer.setPort(8025)
+  var smtpServer: SMTPServer = _
+  
 
   override def onStart(app: Application) {
     Logger.info("Starting application")
-
     Logger.info("Configuration db.default.driver: " + Play.current.configuration.getString("db.default.driver"))
     Logger.info("Configuration mail.host: " + Play.current.configuration.getString("mail.host").getOrElse("INVALID"))
     InitialData.insert()
-
+    smtpServer = new SMTPServer(new MessengerMessageHandlerFactory)
+    smtpServer.setPort(8025)
     Logger.info("Starting SMTP-server on port " + smtpServer.getPort() + "...")
     smtpServer.start()
+    
   }
 
   override def onStop(app: Application) {
     Logger.info("Stopping application...")
-
+  
     Logger.info("Stopping SMTP-server...")
     smtpServer.stop()
+   
+   
   }
 
   //  override def onError(request, ex) {

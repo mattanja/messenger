@@ -5,15 +5,20 @@ import play.api.test.Helpers._
 import com.typesafe.plugin._
 import play.api.Play.current
 
-class EmailSpec extends Specification {
+
+class EmailSpec extends  Specification{
+
   "EmailServer" should {
-   	"send email" in {running(FakeApplication()) {
+    
+    
+   	"send email" in new WithApplication {
 	   	   val email = use[MailerPlugin].email
 	   	   email.addFrom("andrekuhnen@gmail.com");
 	   	   email.addRecipient("andrekuhnen@gmail.com");
 	   	   email.setSubject("subject");
 	   	   email.send("HELLO THERE");
-	}   
+
+   	
+   }
   }
- }
 }

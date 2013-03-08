@@ -43,8 +43,8 @@ class MessengerSimpleMessageListener extends SimpleMessageListener {
    * Implementation of org.subethamail.smtp.helper.SimpleMessageListener.deliver
    */
   def deliver(from: String, recipient: String, data: InputStream): Unit = {
-    val mailData = readInputStream(data)
-    Logger.info("Delivering message from: " + from + " for recipient: " + recipient + " with data:" + mailData)
+   // val mailData = readInputStream(data)
+  //  Logger.info("Delivering message from: " + from + " for recipient: " + recipient + " with data:" + mailData)
 
     // TODO: Send mail to members of mailinglist with the name of "recipient"
     // val members = MailinglistMembers.findByMailinglist(recipient)
@@ -62,6 +62,8 @@ class MessengerSimpleMessageListener extends SimpleMessageListener {
     // * http://commons.apache.org/proper/commons-email/
     // * http://stackoverflow.com/questions/1574116/best-mail-library-for-java-web-applications
     
+  //TODO,  if we are going to use apache, we need to parse the inputStream
+    //or keeping use javaMail
     val  email = new SimpleEmail();
     val (host, auth, port) = getProperties
     email.setHostName(host);
@@ -70,12 +72,12 @@ class MessengerSimpleMessageListener extends SimpleMessageListener {
     if (auth)
       email.setAuthenticator(new DefaultAuthenticator("username", "password"));
     
-    
-   //email.setSSLOnConnect(true);
-    email.setFrom("user@gmail.com");
+  //email.setSSLOnConnect(true);
+    email.setFrom(from);
     email.setSubject("TestMail");
-    email.setMsg("This is a test mail ... :-)");
-    email.addTo("foo@bar.com");
+    val emailData:String = readInputStream(data);
+    email.setMsg(emailData);
+    email.addTo(to);
     email.send();
     }
 

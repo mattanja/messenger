@@ -11,11 +11,11 @@ class EmailSpec extends  Specification{
   "EmailServer" should {
     
     
-   	"send email" in new WithApplication {
+   	"send email" in running(FakeApplication(additionalConfiguration=inMemoryDatabase())){//new WithApplication {
 	   	   val email = use[MailerPlugin].email
 	   	   email.addFrom("andrekuhnen@gmail.com");
 	   	   email.addRecipient("andrekuhnen@gmail.com");
-	   	   email.setSubject("subject");
+	   	   email.setSubject("SUBJECT GOES HERE");
 	   	   email.send("HELLO THERE");
 
    	

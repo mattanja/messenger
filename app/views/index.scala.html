@@ -12,7 +12,7 @@
     			@list.email
     			
     			@form(routes.List.delete(list.email)) {
-                    <input type="submit" value="Delete" />
+                    <input class="btn" type="submit" value="Delete" />
                 }
     		</li>
     	}
@@ -27,6 +27,6 @@
 	@form(routes.List.newList) {
 		@inputText(listForm("email"))
 		
-		<input type="submit" value="Create" />
+		<input class="btn" type="submit" value="Create" />
 	}
 }

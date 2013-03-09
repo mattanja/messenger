@@ -4,8 +4,26 @@
    Author's custom styles
    ========================================================================== */
 
+div.navbar a.userinfo
+{
+	display: block;
+	float: left;
+	color: #fff;
+	line-height: 20px;
+	padding: 10px 15px 10px;
+}
 
+div.navbar .logout {
+	
+}
 
+div.navbar div.navbar-form {
+	height: 40px;
+}
+
+div.navbar form {
+	margin: 0px;
+}
 
 
 

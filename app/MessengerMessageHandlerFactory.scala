@@ -26,11 +26,11 @@ class MessengerMessageHandlerFactory extends SimpleMessageListenerAdapter(new Me
 }
 
 /**
- * 
+ *
  * Implements the interface org.subethamail.smtp.helper.SimpleMessageListener
  */
 class MessengerSimpleMessageListener extends SimpleMessageListener {
-  
+
   /**
    * Implementation of org.subethamail.smtp.helper.SimpleMessageListener.accept
    */
@@ -43,8 +43,8 @@ class MessengerSimpleMessageListener extends SimpleMessageListener {
    * Implementation of org.subethamail.smtp.helper.SimpleMessageListener.deliver
    */
   def deliver(from: String, recipient: String, data: InputStream): Unit = {
-   // val mailData = readInputStream(data)
-  //  Logger.info("Delivering message from: " + from + " for recipient: " + recipient + " with data:" + mailData)
+    // val mailData = readInputStream(data)
+    //  Logger.info("Delivering message from: " + from + " for recipient: " + recipient + " with data:" + mailData)
 
     // TODO: Send mail to members of mailinglist with the name of "recipient"
     // val members = MailinglistMembers.findByMailinglist(recipient)
@@ -56,30 +56,30 @@ class MessengerSimpleMessageListener extends SimpleMessageListener {
 
   def sendMail(from: String, to: String, data: InputStream): Unit = {
     Logger.info("sendMail")
-    
+
     // TODO: Replace this whole mail handling using one of these:
     // * http://code.google.com/p/simple-java-mail/wiki/Manual
     // * http://commons.apache.org/proper/commons-email/
     // * http://stackoverflow.com/questions/1574116/best-mail-library-for-java-web-applications
-    
-  //TODO,  if we are going to use apache, we need to parse the inputStream
+
+    //TODO,  if we are going to use apache, we need to parse the inputStream
     //or keeping use javaMail
-    val  email = new SimpleEmail();
+    val email = new SimpleEmail();
     val (host, auth, port) = getProperties
     email.setHostName(host);
     email.setSmtpPort(port);
-   
+
     if (auth)
       email.setAuthenticator(new DefaultAuthenticator("username", "password"));
-    
-  //email.setSSLOnConnect(true);
+
+    //email.setSSLOnConnect(true);
     email.setFrom(from);
     email.setSubject("TestMail");
-    val emailData:String = readInputStream(data);
+    val emailData: String = readInputStream(data);
     email.setMsg(emailData);
     email.addTo(to);
     email.send();
-    }
+  }
 
   def getMessage(from: String, to: String, data: InputStream, session: Session): Message = {
     Logger.info("getMessage")
@@ -93,32 +93,30 @@ class MessengerSimpleMessageListener extends SimpleMessageListener {
   /**
    * Get Transport with a new session and configuration from app config.
    */
- 
-  
+
   private def getProperties = {
     val props = new Properties();
     val host = Play.current.configuration.getString("mail.host").getOrElse("localhost")
     val auth = Play.current.configuration.getBoolean("mail.smtp.auth").getOrElse(false)
     val port = Play.current.configuration.getInt("mail.smtp.port").getOrElse(25).toString
     Logger.logger.debug("Send email properties: HOST: {}", host)
-    Logger.logger.debug(" PORT: {}  AUTH: {} ", port,auth)
+    Logger.logger.debug(" PORT: {}  AUTH: {} ", port, auth)
     (host, auth, port.toInt)
   }
-  
+
   private def createMailAuthenticator(props: Properties) =
-    
-     if (props.getProperty("mail.smtp.auth").toBoolean)
+
+    if (props.getProperty("mail.smtp.auth").toBoolean)
       javax.mail.Session.getInstance(props)
-    else 
-       javax.mail.Session.getInstance(props, new javax.mail.Authenticator() {
-       override def getPasswordAuthentication(): PasswordAuthentication = {
-        new PasswordAuthentication(
-          Play.current.configuration.getString("mail.smtp.username").get,
-          Play.current.configuration.getString("mail.smtp.password").get)
-      }
-    }) 
-    
-    
+    else
+      javax.mail.Session.getInstance(props, new javax.mail.Authenticator() {
+        override def getPasswordAuthentication(): PasswordAuthentication = {
+          new PasswordAuthentication(
+            Play.current.configuration.getString("mail.smtp.username").get,
+            Play.current.configuration.getString("mail.smtp.password").get)
+        }
+      })
+
   def readInputStream(stream: InputStream): String = {
     val is = new InputStreamReader(stream);
     val sb = new StringBuilder();

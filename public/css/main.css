@@ -13,28 +13,11 @@ div.navbar a.userinfo
 	padding: 10px 15px 10px;
 }
 
-div.navbar .logout {
-	
-}
-
-div.navbar div.navbar-form {
-	height: 40px;
+div.navbar .navbar-form a.logout {
+	float: right;
 }
 
 div.navbar form {
 	margin: 0px;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 

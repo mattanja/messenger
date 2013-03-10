@@ -1,0 +1,32 @@
+@(lists: List[Mailinglist], listForm: Form[String], user: User)
+
+@import helper._
+
+@main("Mailing list", user) {
+    
+    <h1>@lists.size list(s)</h1>
+    
+    <ul>
+    	@lists.map { list =>
+    		<li>
+    			@list.email
+    			
+    			@form(routes.List.delete(list.email)) {
+                    <input class="btn" type="submit" value="Delete" />
+                }
+    		</li>
+    	}
+    </ul>
+    
+	<h2>Create new list</h2>
+
+	@listForm.globalErrors.map { error =>
+		<div>@error</div>
+	}
+
+	@form(routes.List.newList) {
+		@inputText(listForm("email"))
+		
+		<input class="btn" type="submit" value="Create" />
+	}
+}

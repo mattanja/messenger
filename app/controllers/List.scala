@@ -9,8 +9,7 @@ import models._
 import org.omg.CosNaming.NamingContextPackage.NotFound
 
 object List extends Controller with Secured {
-  
-  
+
   /**
    * Define the form object (kind of "view model")
    * http://www.playframework.com/documentation/2.1.0/ScalaForms
@@ -20,10 +19,9 @@ object List extends Controller with Secured {
   /**
    *
    */
-  def index = IsAuthenticated { username =>
-    _ =>
-      User.findByEmail(username).map { user =>
-        Ok(views.html.index(Mailinglist.all(), listForm, user))
+  def index = IsAuthenticated { username => implicit request =>
+      models.User.findByEmail(username).map { user =>
+        Ok(views.html.List.index(Mailinglist.all(), listForm, user))
       }.getOrElse(Forbidden)
   }
 
@@ -34,16 +32,16 @@ object List extends Controller with Secured {
   def newList = IsAuthenticated { username =>
     implicit request =>
       Async {
-        User.findByEmail(username).map { user =>
+        models.User.findByEmail(username).map { user =>
           listForm.bindFromRequest.fold(
-            errors => Promise.pure(BadRequest(views.html.index(Mailinglist.all(), errors, user))),
+            errors => Promise.pure(BadRequest(views.html.List.index(Mailinglist.all(), errors, user))),
             email => {
               try {
                 Mailinglist.create(email)
                 Promise.pure(Redirect(routes.List.index))
               } catch {
                 case e: Exception => {
-                  Promise.pure(BadRequest(views.html.index(Mailinglist.all(), listForm.withGlobalError(e.toString()), user)))
+                  Promise.pure(BadRequest(views.html.List.index(Mailinglist.all(), listForm.withGlobalError(e.toString()), user)))
                 }
               }
             })
@@ -63,26 +61,4 @@ object List extends Controller with Secured {
     Mailinglist.delete(email)
     Redirect(routes.List.index)
   }
-
-  /**
-   * Get the user information.
-   */
-  def getUser(email: String) = IsAuthenticated { username =>
-    _ =>
-      User.findByEmail(username).map { user =>
-        User.findByEmail(email).map { detailUser =>
-          Ok(views.html.List.user(user, detailUser))
-        }.getOrElse(play.api.mvc.Results.NotFound("User not found"))
-      }.getOrElse(Forbidden("Must be logged in"))
-  }
-  
-  /**
-   * Update user data and lists.
-   */
-  def updateUser(email: String) = TODO
-  
-  /**
-   * Delete user.
-   */
-  def deleteUser(email: String) = TODO
 }

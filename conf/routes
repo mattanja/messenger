@@ -17,9 +17,9 @@ GET		/list/:email				controllers.List.edit(email: String)
 POST	/list/:email/delete			controllers.List.delete(email: String)
 
 # Users / Members
-GET		/user/:email				controllers.List.getUser(email: String)
-POST	/user/update/:email			controllers.List.updateUser(email: String)
-DELETE	/user/delete/:email			controllers.List.deleteUser(email: String)
+GET		/user/:email				controllers.User.index(email: String)
+POST	/user/update/:email			controllers.User.update(email: String)
+DELETE	/user/delete/:email			controllers.User.delete(email: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

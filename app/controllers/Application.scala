@@ -7,24 +7,28 @@ import play.api.data.Forms._
 import play.api.libs.concurrent._
 import models._
 
-trait Application extends Controller {
+trait Application extends Controller with Secured {
   this: Controller =>
-  
-  def index = Action {
-    Redirect(routes.List.index)
+
+  /**
+   * Index page
+   */
+  def index = Action { implicit request =>
+    request.session.get("email") flatMap (email => models.User.findByEmail(email)) map { user =>
+      Ok(views.html.index(user))
+    } getOrElse {
+      Ok(views.html.index(null))
+    }
   }
-  
-  
+
   // -- Authentication
 
   val loginForm = Form(
     tuple(
       "email" -> text,
-      "password" -> text
-    ) verifying ("Invalid email or password", result => result match {
-      case (email, password) => User.authenticate(email, password).isDefined
-    })
-  )
+      "password" -> text) verifying ("Invalid email or password", result => result match {
+        case (email, password) => models.User.authenticate(email, password).isDefined
+      }))
 
   /**
    * Login page.
@@ -39,8 +43,7 @@ trait Application extends Controller {
   def authenticate = Action { implicit request =>
     loginForm.bindFromRequest.fold(
       formWithErrors => BadRequest(views.html.login(formWithErrors)),
-      user => Redirect(routes.List.index).withSession("email" -> user._1)
-    )
+      user => Redirect(routes.List.index).withSession("email" -> user._1))
   }
 
   /**
@@ -48,56 +51,9 @@ trait Application extends Controller {
    */
   def logout = Action {
     Redirect(routes.Application.login).withNewSession.flashing(
-      "success" -> "You've been logged out"
-    )
+      "success" -> "You've been logged out")
   }
 }
 
 object Application extends Controller with Application
-/**
- * Provide security features
- */
-trait Secured {
-  
-  /**
-   * Retrieve the connected user email.
-   */
-  private def username(request: RequestHeader) = request.session.get("email")
-  
-  /**
-   * Redirect to login if the user in not authorized.
-   */
-  private def onUnauthorized(request: RequestHeader) = Results.Redirect(routes.Application.login)
-  
-  // --
-  
-  /** 
-   * Action for authenticated users.
-   */
-  def IsAuthenticated(f: => String => Request[AnyContent] => Result) = Security.Authenticated(username, onUnauthorized) { user =>
-    Action(request => f(user)(request))
-  }
 
-  /**
-   * Check if the connected user is a member of this project.
-   */
-  def IsMemberOf(project: Long)(f: => String => Request[AnyContent] => Result) = IsAuthenticated { user => request =>
-    //if(Project.isMember(project, user)) {
-      f(user)(request)
-    //} else {
-    //  Results.Forbidden
-    //}
-  }
-
-  /**
-   * Check if the connected user is a owner of this task.
-   */
-  def IsOwnerOf(task: Long)(f: => String => Request[AnyContent] => Result) = IsAuthenticated { user => request =>
-    //if(Task.isOwner(task, user)) {
-      f(user)(request)
-    //} else {
-    //  Results.Forbidden
-    //}
-  }
-
-}

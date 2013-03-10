@@ -10,10 +10,12 @@ import org.omg.CosNaming.NamingContextPackage.NotFound
 
 object User extends Controller with Secured {
 
+  def index = TODO
+  
   /**
    * Get the user information.
    */
-  def index(email: String) = IsAuthenticated { username =>
+  def detail(email: String) = IsAuthenticated { username =>
     _ =>
       models.User.findByEmail(username).map { user =>
         models.User.findByEmail(email).map { detailUser =>

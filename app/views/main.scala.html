@@ -40,8 +40,9 @@
                     <a class="brand" href="@routes.Application.index">messenger</a>
                     <div class="nav-collapse collapse">
                         <ul class="nav">
-                            <li class="active"><a href="#">Home</a></li>
-                            <li><a href="#about">About</a></li>
+                            <li><a href="@routes.List.index">Mailinglists</a></li>
+                            <li><a href="@routes.User.index">Users</a></li>
+                            <!-- 
                             <li><a href="#contact">Contact</a></li>
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
@@ -55,10 +56,11 @@
                                     <li><a href="#">One more separated link</a></li>
                                 </ul>
                             </li>
+                            -->
                         </ul>
                         <div class="navbar-form pull-right">
                         @if(user != null) {
-                        	<a href="@routes.User.index(user.email)" class="userinfo"><i class="icon-user icon-white"></i> @user.name <span>(@user.email)</span></a>
+                        	<a href="@routes.User.detail(user.email)" class="userinfo"><i class="icon-user icon-white"></i> @user.name <span>(@user.email)</span></a>
                            	<a class="btn logout" href="@routes.Application.logout()">Logout</a>
                         } else {
 	                        @helper.form(routes.Application.authenticate, 'class -> "form-inline") {

@@ -17,7 +17,8 @@ GET		/list/:email				controllers.List.edit(email: String)
 POST	/list/:email/delete			controllers.List.delete(email: String)
 
 # Users / Members
-GET		/user/:email				controllers.User.index(email: String)
+GET		/users						controllers.User.index
+GET		/user/:email				controllers.User.detail(email: String)
 POST	/user/update/:email			controllers.User.update(email: String)
 DELETE	/user/delete/:email			controllers.User.delete(email: String)
 

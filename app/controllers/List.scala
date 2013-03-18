@@ -52,7 +52,14 @@ object List extends Controller with Secured {
   /**
    *
    */
-  def edit(name: String) = TODO
+  def edit(name: String) = IsAuthenticated { username => implicit request =>
+      Async {
+        models.User.findByEmail(username).map { user =>
+          // Actual action
+          Promise.pure(Ok(views.html.List.edit(name, models.Mailinglist.findByEmailWithUsers(name), user)))
+        }.getOrElse(Promise.pure(Forbidden))
+      }
+  }
 
   /**
    *

@@ -1,0 +1,20 @@
+@(listname: String, mailinglist: Option[models.Mailinglist], user: models.User)
+
+@import helper._
+
+@mailinglist.map { list =>
+	@main(list.email, user) {
+	<h1>@list.email</h1>
+
+	<ul>
+		@list.members.map { member =>
+			<li>@member.email</li>
+		}
+	</ul>
+	}
+
+}.getOrElse {
+	@main("Not found", user) {
+		<div>List not found: @listname</div>
+	}
+}

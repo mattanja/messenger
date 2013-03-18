@@ -6,7 +6,11 @@ import play.api.Play.current
 import anorm._
 import anorm.SqlParser._
 
-case class User(email: String, name: String, password: String)
+case class User(
+    email: String,
+    name: String,
+    password: String
+)
 
 /**
  * This uses ScalaAnorm, packaged with play! framework 2

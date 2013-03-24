@@ -2,6 +2,7 @@ package models
 
 import play.api.db._
 import play.api.Play.current
+import play.api.libs.json._
 
 import anorm._
 import anorm.SqlParser._
@@ -17,7 +18,23 @@ case class User(
  * https://github.com/playframework/Play20/wiki/ScalaAnorm
  */
 object User {
-  
+
+
+  /**
+   * JsonFormat
+   */
+  implicit object UserJsonFormat extends Format[User] {
+    def reads(json: JsValue) = JsSuccess(User(
+      (json \ "email").as[String],
+      (json \ "name").as[String],
+      (json \ "password").as[String]))
+
+    def writes(u: User): JsValue = JsObject(List(
+      "email" -> JsString(u.email),
+      "name" -> JsString(u.name),
+      "password" -> JsString(u.password)))
+  }
+
   // -- Parsers
   
   /**

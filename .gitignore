@@ -35,4 +35,6 @@ dist
 
 # project ignore files
 /conf/mail.conf
+*.sublime-project
+*.sublime-workspace
 

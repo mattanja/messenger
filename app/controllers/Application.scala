@@ -5,7 +5,11 @@ import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
 import play.api.libs.concurrent._
+import play.api.libs.json._
+
 import models._
+// you need this import to have combinators
+import play.api.libs.functional.syntax._
 
 trait Application extends Controller with Secured {
   this: Controller =>
@@ -19,6 +23,18 @@ trait Application extends Controller with Secured {
     } getOrElse {
       Ok(views.html.index(null))
     }
+  }
+
+  /**
+   * Sample / testing
+   * 
+   * JSON user data
+   * 
+   */
+  def test() = IsAuthenticated { username => implicit request =>
+    models.User.findByEmail(username).map { user =>
+      Ok(Json.toJson(user))
+    }.getOrElse(Forbidden)
   }
 
   // -- Authentication

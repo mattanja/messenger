@@ -50,15 +50,36 @@ object List extends Controller with Secured {
   }
 
   /**
-   *
+   * The list detail view.
    */
-  def edit(name: String) = IsAuthenticated { username => implicit request =>
+  def detail(email: String) = IsAuthenticated { username => implicit request =>
       Async {
         models.User.findByEmail(username).map { user =>
           // Actual action
-          Promise.pure(Ok(views.html.List.edit(name, models.Mailinglist.findByEmailWithUsers(name), user)))
+          Promise.pure(Ok(views.html.List.edit(email, models.Mailinglist.findByEmailWithUsers(email), user)))
         }.getOrElse(Promise.pure(Forbidden))
       }
+  }
+
+  def addMember() = IsAuthenticated { username => implicit request =>
+    Async {
+      models.User.findByEmail(username).map { user =>
+        // Authenticated async action
+        Promise.pure(Ok)
+      }.getOrElse(Promise.pure(Forbidden))
+    }
+  }
+
+  def removeMember(mailinglist_email: String, user_email: String) = IsAuthenticated { username => implicit request =>
+    Async {
+      models.User.findByEmail(username).map { user =>
+        // Authenticated async action
+
+        //MailinglistMembership.delete(mailinglist_email, user_email)
+
+        Promise.pure(Ok)
+      }.getOrElse(Promise.pure(Forbidden))
+    }
   }
 
   /**

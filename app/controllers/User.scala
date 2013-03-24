@@ -24,6 +24,8 @@ object User extends Controller with Secured {
       }.getOrElse(Forbidden("Must be logged in"))
   }
 
+  def newUser() = TODO
+
   /**
    * Update user data and lists.
    */

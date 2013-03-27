@@ -1,4 +1,4 @@
-package test
+/* package test
 
 import org.specs2.mutable._
 import play.api.test._
@@ -15,7 +15,9 @@ import play.api.libs.ws.WS
  * add your integration spec here.
  * An integration test will fire up a whole play application in a real (or headless) browser
  */
-object IntegrationSpec extends Specification {
+
+ 
+ object IntegrationSpec extends Specification {
   sequential
 
   val testServerPort = 15155;
@@ -46,7 +48,7 @@ object IntegrationSpec extends Specification {
   //browser.url must equalTo("/")
   //browser.$("#title").getTexts().get(0) must equalTo("Hello Coco")
   //} 
-
+/*
   "app" should {
     "work from within a browser" in running(testServer, HTMLUNIT) {
       browser =>
@@ -58,3 +60,4 @@ object IntegrationSpec extends Specification {
   }
 }
 
+}*/ */

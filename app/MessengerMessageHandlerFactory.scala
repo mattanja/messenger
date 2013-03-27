@@ -16,6 +16,7 @@ import play.api.Logger
 import play.api.Play
 import org.apache.commons.mail.SimpleEmail
 import org.apache.commons.mail.DefaultAuthenticator
+import models.Email
 
 // For a more advanced message handling, check https://code.google.com/p/subetha/source/browse/trunk/src/org/subethamail/core/smtp/SMTPHandler.java
 
@@ -75,7 +76,7 @@ class MessengerSimpleMessageListener extends SimpleMessageListener {
     //email.setSSLOnConnect(true);
     email.setFrom(from);
     email.setSubject("TestMail");
-    val emailData: String = readInputStream(data);
+    val emailData: String = Email(data);
     email.setMsg(emailData);
     email.addTo(to);
     email.send();
@@ -86,7 +87,7 @@ class MessengerSimpleMessageListener extends SimpleMessageListener {
     val msg = new MimeMessage(session)
     msg.setFrom(new InternetAddress(from))
     msg.setRecipients(Message.RecipientType.TO, to)
-    msg.setText(readInputStream(data))
+    msg.setText(Email(data))//readInputStream(data))
     msg
   }
 
@@ -117,18 +118,5 @@ class MessengerSimpleMessageListener extends SimpleMessageListener {
         }
       })
 
-  def readInputStream(stream: InputStream): String = {
-    val is = new InputStreamReader(stream);
-    val sb = new StringBuilder();
-    val br = new BufferedReader(is);
-    var read = br.readLine();
-
-    while (read != null) {
-      //System.out.println(read);
-      sb.append(read);
-      read = br.readLine();
-    }
-
-    sb.toString();
-  }
+  
 }

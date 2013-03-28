@@ -23,7 +23,9 @@ object EmailContents {
   
   def apply(in: InputStream): EmailContents = {
     val builder = new DefaultMessageBuilder();
-    val (txt, html, attachs) = parse(builder.parseMessage(in))
+    val message = builder.parseMessage(in)
+    val (txt, html, attachs) = parse(message)
+    message.dispose
     EmailContents(txt.toString(), html.toString(), attachs)
   }
 

@@ -73,6 +73,7 @@ class MessengerSimpleMessageListener extends SimpleMessageListener {
     email.setFrom(from);
     email.setSubject("TestMail");
     val emailData: String = EmailContents(data).txtBody;
+    data.close()
     //email.setContent(emailData)//for multi part if needed
     email.setMsg(emailData);
     email.addTo(to);

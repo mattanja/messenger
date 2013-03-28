@@ -16,7 +16,7 @@ import play.api.Logger
 import play.api.Play
 import org.apache.commons.mail.SimpleEmail
 import org.apache.commons.mail.DefaultAuthenticator
-import models.Email
+import models.EmailContents
 
 // For a more advanced message handling, check https://code.google.com/p/subetha/source/browse/trunk/src/org/subethamail/core/smtp/SMTPHandler.java
 
@@ -24,6 +24,12 @@ import models.Email
  *
  */
 class MessengerMessageHandlerFactory extends SimpleMessageListenerAdapter(new MessengerSimpleMessageListener) {
+
+	//Actor  to deal with messages
+	//Receive the parsed message
+   
+  
+  
 }
 
 /**
@@ -44,9 +50,10 @@ class MessengerSimpleMessageListener extends SimpleMessageListener {
    * Implementation of org.subethamail.smtp.helper.SimpleMessageListener.deliver
    */
   def deliver(from: String, recipient: String, data: InputStream): Unit = {
-    // val mailData = readInputStream(data)
-    //  Logger.info("Delivering message from: " + from + " for recipient: " + recipient + " with data:" + mailData)
-
+    //Here send the message to be parsed
+    //then creates all the necessary copies,  Another actor
+    //then send all the messages
+    
     // TODO: Send mail to members of mailinglist with the name of "recipient"
     // val members = MailinglistMembers.findByMailinglist(recipient)
     // foreach member send mail
@@ -66,6 +73,7 @@ class MessengerSimpleMessageListener extends SimpleMessageListener {
     //TODO,  if we are going to use apache, we need to parse the inputStream
     //or keeping use javaMail
     val email = new SimpleEmail();
+    
     val (host, auth, port) = getProperties
     email.setHostName(host);
     email.setSmtpPort(port);
@@ -76,20 +84,21 @@ class MessengerSimpleMessageListener extends SimpleMessageListener {
     //email.setSSLOnConnect(true);
     email.setFrom(from);
     email.setSubject("TestMail");
-    val emailData: String = Email(data);
+    val emailData: String = EmailContents(data).txtBody;
+    //email.setContent(emailData)
     email.setMsg(emailData);
     email.addTo(to);
     email.send();
   }
 
-  def getMessage(from: String, to: String, data: InputStream, session: Session): Message = {
+ /* def getMessage(from: String, to: String, data: InputStream, session: Session): Message = {
     Logger.info("getMessage")
     val msg = new MimeMessage(session)
     msg.setFrom(new InternetAddress(from))
     msg.setRecipients(Message.RecipientType.TO, to)
     msg.setText(Email(data))//readInputStream(data))
     msg
-  }
+  } */
 
   /**
    * Get Transport with a new session and configuration from app config.
@@ -99,7 +108,7 @@ class MessengerSimpleMessageListener extends SimpleMessageListener {
     val props = new Properties();
     val host = Play.current.configuration.getString("mail.host").getOrElse("localhost")
     val auth = Play.current.configuration.getBoolean("mail.smtp.auth").getOrElse(false)
-    val port = Play.current.configuration.getInt("mail.smtp.port").getOrElse(25).toString
+    val port = Play.current.configuration.getInt("mail.smtp.port").getOrElse(8024).toString
     Logger.logger.debug("Send email properties: HOST: {}", host)
     Logger.logger.debug(" PORT: {}  AUTH: {} ", port, auth)
     (host, auth, port.toInt)

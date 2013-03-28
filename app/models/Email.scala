@@ -1,161 +1,88 @@
 package models
 
 import java.io.InputStream
-import java.io.InputStreamReader
-import java.io.BufferedReader
-import scala.io.Source
+import scala.collection.JavaConverters._
+import scala.util.parsing.input.StreamReader
+import org.apache.james.mime4j.dom.Entity
+import org.apache.james.mime4j.dom.Message
+import org.apache.james.mime4j.dom.Multipart
+import org.apache.james.mime4j.dom.TextBody
+import org.apache.james.mime4j.message.BodyPart
+import org.apache.james.mime4j.message.DefaultMessageBuilder
+import java.nio.CharBuffer
+import scala.runtime.ArrayCharSequence
+import java.io.ByteArrayOutputStream
+import play.api.Logger
 
-case class Email(data: String, x:String) {
+case class EmailContents(txtBody: String, htmlBody: String, attachments: List[BodyPart])
 
-}
+object EmailContents {
 
-
-object Email {
-  
-  def apply(stream: InputStream) = parse(stream) //new Email(stream, "oi")
-  
-  
-  private def parse(stream: InputStream) = {
-	Source.fromInputStream(stream).mkString
+  def apply(in: InputStream): EmailContents = {
+    val builder = new DefaultMessageBuilder();
+    val (txt, html, attachs) = parse(builder.parseMessage(in))
+    EmailContents(txt.toString(), html.toString(), attachs)
   }
-      
-  
-    
-  /*public class TransformMessage {
 
-    // Host name used in message identifiers.
-    private static final String HOSTNAME = "localhost";
+  def parse(mimeMsg: Message) = {
+    val txtBody: StringBuffer = new StringBuffer
+    val htmlBody: StringBuffer = new StringBuffer
+    val attachments: List[BodyPart] = List.empty
 
-    public static void main(String[] args) throws Exception {
-        // Explicitly set a strategy for storing body parts. Usually not
-        // necessary; for most applications the default setting is appropriate.
-        StorageProvider storageProvider = new TempFileStorageProvider();
-        DefaultStorageProvider.setInstance(storageProvider);
+    def parseBodyParts(multipart: Multipart) {
 
-        // Create a template message. It would be possible to load a message
-        // from an input stream but for this example a message object is created
-        // from scratch for demonstration purposes.
-        Message template = createTemplate();
-
-        // Create a new message by transforming the template.
-        Message transformed = transform(template);
-
-        MessageWriter writer = new DefaultMessageWriter();
-
-        // Print transformed message.
-        System.out.println("\n\nTransformed message:\n--------------------\n");
-        writer.writeMessage(transformed, System.out);
-
-        // Messages should be disposed of when they are no longer needed.
-        // Disposing of a message also disposes of all child elements (e.g. body
-        // parts) of the message.
-        transformed.dispose();
-
-        // Print original message to illustrate that it was not affected by the
-        // transformation.
-        System.out.println("\n\nOriginal template:\n------------------\n");
-        writer.writeMessage(template, System.out);
-
-        // Original message is no longer needed.
-        template.dispose();
-
-        // At this point all temporary files have been deleted because all
-        // messages and body parts have been disposed of properly.
-    }
-
-    /**
-     * Copies the given message and makes some arbitrary changes to the copy.
-     * @throws ParseException on bad arguments
-     */
-    private static Message transform(Message original) throws IOException, ParseException {
-        // Create a copy of the template. The copy can be modified without
-        // affecting the original.
-        MessageBuilder builder = new DefaultMessageBuilder();
-        Message message = builder.newMessage(original);
-
-        // In this example we know we have a multipart message. Use
-        // Message#isMultipart() if uncertain.
-        Multipart multipart = (Multipart) message.getBody();
-
-        // Insert a new text/plain body part after every body part of the
-        // template.
-        final int count = multipart.getCount();
-        for (int i = 0; i < count; i++) {
-            String text = "Text inserted after part " + (i + 1);
-            BodyPart bodyPart = createTextPart(text);
-            multipart.addBodyPart(bodyPart, 2 * i + 1);
+      def parsePart(part: Entity) = {
+        val mimeType = part.getMimeType
+        mimeType match {
+          case "text/plain" =>
+            val txt = getTxtPart(part)
+            txtBody.append(txt)
+          case "text/html" =>
+            val html = getTxtPart(part)
+            htmlBody.append(html)
+          case _ => if (part.getDispositionType() != null &&
+            !part.getDispositionType().equals(""))
+            //If DispositionType is null or empty, it means that it's multipart, not attached file  
+            part :: attachments
         }
 
-        // For no particular reason remove the second binary body part (now
-        // at index four).
-        Entity removed = multipart.removeBodyPart(4);
+        //If current part contains other, parse it again by recursion  
+        if (part.isMultipart()) {
+          parseBodyParts(part.getBody().asInstanceOf[Multipart]);
+        }
+      }
 
-        // The removed body part no longer has a parent entity it belongs to so
-        // it should be disposed of.
-        removed.dispose();
-
-        // Set some headers on the transformed message
-        message.createMessageId(HOSTNAME);
-        message.setSubject("Transformed message");
-        message.setDate(new Date());
-        message.setFrom(AddressBuilder.DEFAULT.parseMailbox("John Doe <jdoe@machine.example>"));
-
-        return message;
+      val bodyParts = multipart.getBodyParts().asScala.toList
+      for (part <- bodyParts) parsePart(part)
     }
+    extractParts(mimeMsg, txtBody, parseBodyParts)
 
-    /**
-     * Creates a multipart/mixed message that consists of three parts (one text,
-     * two binary).
-     */
-    private static Message createTemplate() throws IOException {
-        Multipart multipart = new MultipartImpl("mixed");
+    Logger.debug("Text body: " + txtBody.toString());
+    Logger.debug("Html body: " + htmlBody.toString());
+    (txtBody, htmlBody, attachments)
+  }
 
-        BodyPart part1 = createTextPart("This is the first part of the template..");
-        multipart.addBodyPart(part1);
+  private def getTxtPart(part: Entity) = {
 
-        BodyPart part2 = createRandomBinaryPart(200);
-        multipart.addBodyPart(part2);
+    val body = part.getBody().asInstanceOf[TextBody]
+    val out = new ByteArrayOutputStream
+    body.writeTo(out)
+    out
 
-        BodyPart part3 = createRandomBinaryPart(300);
-        multipart.addBodyPart(part3);
+  }
+  
+  private def extractParts(mimeMsg: Message, txtBody: StringBuffer,
+      parseBodyParts: Multipart => Unit): Any = {
 
-        MessageImpl message = new MessageImpl();
-        message.setMultipart(multipart);
-
-        message.setSubject("Template message");
-
-        return message;
+    //If message contains many parts - parse all parts  
+    if (mimeMsg.isMultipart()) {
+      val multipart = mimeMsg.getBody().asInstanceOf[Multipart];
+      parseBodyParts(multipart);
+    } else {
+      //If it's single part message, just get text body  
+      val text = getTxtPart(mimeMsg)
+      txtBody.append(text);
     }
+  }
 
-    /**
-     * Creates a text part from the specified string.
-     */
-    private static BodyPart createTextPart(String text) {
-        TextBody body = new StorageBodyFactory().textBody(text, "UTF-8");
-
-        BodyPart bodyPart = new BodyPart();
-        bodyPart.setText(body);
-        bodyPart.setContentTransferEncoding("quoted-printable");
-
-        return bodyPart;
-    }
-
-    /**
-     * Creates a binary part with random content.
-     */
-    private static BodyPart createRandomBinaryPart(int numberOfBytes)
-            throws IOException {
-        byte[] data = new byte[numberOfBytes];
-        new Random().nextBytes(data);
-
-        Body body = new StorageBodyFactory()
-                .binaryBody(new ByteArrayInputStream(data));
-
-        BodyPart bodyPart = new BodyPart();
-        bodyPart.setBody(body, "application/octet-stream");
-        bodyPart.setContentTransferEncoding("base64");
-
-        return bodyPart;
-    }
-*/
 }

@@ -14,6 +14,7 @@ object Global extends GlobalSettings {
     Logger.info("Configuration db.default.driver: " + Play.current.configuration.getString("db.default.driver"))
     Logger.info("Configuration mail.host: " + Play.current.configuration.getString("mail.host").getOrElse("INVALID"))
     InitialData.insert()
+    //Actor here, with the Messenger Handler
     smtpServer = new SMTPServer(new MessengerMessageHandlerFactory)
     smtpServer.setPort(8025)
     Logger.info("Starting SMTP-server on port " + smtpServer.getPort() + "...")

@@ -8,8 +8,12 @@ import play.api.Play.current
 case class Mailinglist(
     email: String,
     members: Option[models.User] = Option.empty
-)
-
+) {
+  
+  def add(member: User) {
+	  MailinglistMembership.create(email, member.email)
+  }
+}
 /**
  * This uses ScalaAnorm, packaged with play! framework 2
  * https://github.com/playframework/Play20/wiki/ScalaAnorm

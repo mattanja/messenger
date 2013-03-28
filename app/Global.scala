@@ -8,7 +8,6 @@ object Global extends GlobalSettings {
 
   var smtpServer: SMTPServer = _
   
-
   override def onStart(app: Application) {
     Logger.info("Starting application")
     Logger.info("Configuration db.default.driver: " + Play.current.configuration.getString("db.default.driver"))

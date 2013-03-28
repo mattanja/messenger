@@ -1,17 +1,19 @@
 package email
-import org.apache.james.mime4j.message.MessageImpl
-import org.specs2.mutable.Specification
-import java.util.Date
-import org.apache.james.mime4j.field.address.AddressBuilder
-import org.apache.james.mime4j.storage.StorageBodyFactory
-import org.apache.james.mime4j.message.DefaultMessageWriter
-import java.io.ByteArrayOutputStream
-import java.io.InputStreamReader
-import java.io.InputStream
+
 import java.io.ByteArrayInputStream
-import play.api.test.Helpers._
-import play.api.test.FakeApplication
+import java.io.ByteArrayOutputStream
+import java.util.Date
+
+import org.apache.james.mime4j.field.address.AddressBuilder
+import org.apache.james.mime4j.message.DefaultMessageWriter
+import org.apache.james.mime4j.message.MessageImpl
+import org.apache.james.mime4j.storage.StorageBodyFactory
+import org.specs2.mutable.Specification
+
 import models.EmailContents
+import play.api.test.FakeApplication
+import play.api.test.Helpers.inMemoryDatabase
+import play.api.test.Helpers.running
 
 object EmailParseSpec extends Specification {
 
@@ -30,6 +32,9 @@ object EmailParseSpec extends Specification {
     Expected must equalTo(EmailContents(inputStream).txtBody)
       }
   }
+    
+ 
+    
   
 object Message {
   // 1) start with an empty message

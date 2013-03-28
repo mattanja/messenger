@@ -13,11 +13,14 @@ import java.nio.CharBuffer
 import scala.runtime.ArrayCharSequence
 import java.io.ByteArrayOutputStream
 import play.api.Logger
+import org.apache.james.mime4j.dom.Body
 
 case class EmailContents(txtBody: String, htmlBody: String, attachments: List[BodyPart])
 
 object EmailContents {
 
+  implicit def entityToMultipart(entity: Body)= entity.asInstanceOf[Multipart]
+  
   def apply(in: InputStream): EmailContents = {
     val builder = new DefaultMessageBuilder();
     val (txt, html, attachs) = parse(builder.parseMessage(in))
@@ -31,29 +34,25 @@ object EmailContents {
 
     def parseBodyParts(multipart: Multipart) {
 
-      def parsePart(part: Entity) = {
-        val mimeType = part.getMimeType
-        mimeType match {
-          case "text/plain" =>
-            val txt = getTxtPart(part)
-            txtBody.append(txt)
-          case "text/html" =>
-            val html = getTxtPart(part)
-            htmlBody.append(html)
-          case _ => if (part.getDispositionType() != null &&
-            !part.getDispositionType().equals(""))
-            //If DispositionType is null or empty, it means that it's multipart, not attached file  
-            part :: attachments
-        }
+      def parsePart(part: Entity) = part.getMimeType match {
+        case "text/plain" =>
+          val txt = getTxtPart(part)
+          txtBody.append(txt)
+        case "text/html" =>
+          val html = getTxtPart(part)
+          htmlBody.append(html)
+        case _ => if (part.getDispositionType() != null &&
+          !part.getDispositionType().equals(""))
+          //If DispositionType is null or empty, it means that it's multipart, not attached file  
+          part :: attachments
 
-        //If current part contains other, parse it again by recursion  
-        if (part.isMultipart()) {
-          parseBodyParts(part.getBody().asInstanceOf[Multipart]);
-        }
+      }
+      val bodyParts = multipart.getBodyParts().asScala.toList
+      bodyParts foreach { part =>
+        parsePart(part)
+        if (part.isMultipart) parseBodyParts(part.getBody)
       }
 
-      val bodyParts = multipart.getBodyParts().asScala.toList
-      for (part <- bodyParts) parsePart(part)
     }
     extractParts(mimeMsg, txtBody, parseBodyParts)
 
@@ -70,13 +69,12 @@ object EmailContents {
     out
 
   }
-  
-  private def extractParts(mimeMsg: Message, txtBody: StringBuffer,
-      parseBodyParts: Multipart => Unit): Any = {
 
+  private def extractParts(mimeMsg: Message, txtBody: StringBuffer,
+    parseBodyParts: Multipart => Unit): Any = {
     //If message contains many parts - parse all parts  
     if (mimeMsg.isMultipart()) {
-      val multipart = mimeMsg.getBody().asInstanceOf[Multipart];
+      val multipart = mimeMsg.getBody
       parseBodyParts(multipart);
     } else {
       //If it's single part message, just get text body  

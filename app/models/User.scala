@@ -75,16 +75,16 @@ object User {
     }
   }
 
-   def create(user: User): User = {
+   def create(user: User): Int = {
     DB.withConnection { implicit connection =>
       try {
         SQL("INSERT INTO user values ({email}, {name}, {password})").on(
           'email -> user.email,
           'name -> user.name,
           'password -> user.password).executeUpdate()
-          user
+          
       } catch {
-        case e: Exception => Logger.error("Could not create new user\n" + e); user
+        case e: Exception => Logger.error("Could not create new user\n" + e); 0
       }
    }
   }

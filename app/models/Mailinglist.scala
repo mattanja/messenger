@@ -34,7 +34,7 @@ object Mailinglist {
     get[String]("mailinglist.email")
   }
 
-  def allOnlyLists(): List[String] = DB.withConnection {
+  def allOnlyLists: List[String] = DB.withConnection {
     implicit c => SQL("SELECT email FROM mailinglist").as(simple *)
   }
 
@@ -42,11 +42,11 @@ object Mailinglist {
     val groupedMembers = groupsAndMembers.groupBy(_._1) mapValues (_.map(_._2))
     groupedMembers.map { case (k, v) => Mailinglist(k, v) }
   }
-  def all(): Iterable[Mailinglist] = DB.withConnection {
+  def all /*Iterable[Mailinglist]*/ = allOnlyLists/*DB.withConnection {
     implicit c =>
       groupMembersWithLists(
         SQL("Select * from mailinglist_member").as(mailinglist *))
-  }
+  }*/
 
   def create(email: String) {
     DB.withConnection { implicit c =>

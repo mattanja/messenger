@@ -21,7 +21,8 @@ object List extends Controller with Secured {
    */
   def index = IsAuthenticated { username => implicit request =>
       models.User.findByEmail(username).map { user =>
-        Ok(views.html.List.index(Mailinglist.all().toList, listForm, user))
+        println(Mailinglist.all.toList)
+        Ok(views.html.List.index(Mailinglist.all, listForm, user))
       }.getOrElse(Forbidden)
   }
 
@@ -34,14 +35,14 @@ object List extends Controller with Secured {
       Async {
         models.User.findByEmail(username).map { user =>
           listForm.bindFromRequest.fold(
-            errors => Promise.pure(BadRequest(views.html.List.index(Mailinglist.all().toList, errors, user))),
+            errors => Promise.pure(BadRequest(views.html.List.index(Mailinglist.all, errors, user))),
             email => {
               try {
                 Mailinglist.create(email)
                 Promise.pure(Redirect(routes.List.index))
               } catch {
                 case e: Exception => {
-                  Promise.pure(BadRequest(views.html.List.index(Mailinglist.all().toList, listForm.withGlobalError(e.toString()), user)))
+                  Promise.pure(BadRequest(views.html.List.index(Mailinglist.all, listForm.withGlobalError(e.toString()), user)))
                 }
               }
             })

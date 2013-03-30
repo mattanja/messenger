@@ -1,15 +1,15 @@
-@(lists: List[Mailinglist], listForm: Form[String], user: User)
+@(lists: List[String], listForm: Form[String], user: User)
 
 @import helper._
 
 @main("Mailing list", user) {
     
-    <h1>@lists.size list(s)</h1>
+    <h1>@lists.size list(s) </h1>
     
     <ul>
     	@lists.map { list =>
-    		<li><a href="@routes.List.detail(list.email)">@list.email</a>
-    			@form(routes.List.delete(list.email)) {
+    		<li><a href="@routes.List.detail(list)">@list</a> 
+    			@form(routes.List.delete(list)) {
                     <input class="btn" type="submit" value="Delete" />
                 }
     		</li>

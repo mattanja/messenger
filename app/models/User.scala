@@ -3,9 +3,9 @@ package models
 import play.api.db._
 import play.api.Play.current
 import play.api.libs.json._
-
 import anorm._
 import anorm.SqlParser._
+import play.api.Logger
 
 case class User(
     email: String,
@@ -90,8 +90,8 @@ object User {
   /**
    * Create a User.
    */
-  def create(user: User): User = {
-    DB.withConnection { implicit connection =>
+  def create(user: User): Int = {
+    DB.withConnection { implicit connection => try {
       SQL(
         """
           insert into user values (
@@ -103,8 +103,10 @@ object User {
         'name -> user.name,
         'password -> user.password
       ).executeUpdate()
+    } catch {
+      case e:Exception => Logger.error("Could not create new user\n" + e); 0
+    }
       
-      user
       
     }
   }

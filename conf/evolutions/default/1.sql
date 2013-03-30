@@ -20,6 +20,7 @@ create table mailinglist_member (
   foreign key(user_email)   references user(email) on delete cascade
 );
 
+
 # --- !Downs
 
 drop table if exists mailinglist_member;

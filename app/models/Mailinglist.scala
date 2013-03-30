@@ -7,7 +7,7 @@ import play.api.Play.current
 
 case class Mailinglist(
     email: String,
-    members: Option[models.User] = Option.empty
+    members: List[String] = List.empty
 ) {
   
   def add(member: User) {

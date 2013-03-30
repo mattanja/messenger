@@ -35,13 +35,14 @@ object MailinglistMembership {
     }
   }
   
-  def findAll: List[(String, String)] = {
+  def findAll = {
     val all = SQL("Select * from mailinglist_member")
     DB.withConnection { implicit c =>
     val wholeTable = all().map(row => 
   row[String]("mailinglist_email") -> row[String]("user_email")
 ).toList
-	wholeTable 
+	val groupedMembers = wholeTable.groupBy(_._1) mapValues(_.map (_._2))
+	groupedMembers.map {case (k,v) => Mailinglist(k,v)}
   }
   }
 }

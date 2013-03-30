@@ -9,10 +9,10 @@ CREATE TABLE USER (email varchar(255) NOT NULL PRIMARY KEY, name varchar(255) NO
 
 
 CREATE TABLE mailinglist_member (mailinglist_email varchar(255) NOT NULL, user_email varchar(255) NOT NULL,
-                                 FOREIGN KEY(mailinglist_email) REFERENCES mailinglist(email) ON
+                                 FOREIGN KEY(mailinglist_email)  REFERENCES mailinglist(email) ON
                                  DELETE CASCADE,
-                                 FOREIGN KEY(user_email) REFERENCES USER(email) ON
-                                 DELETE CASCADE);
+                                 FOREIGN KEY(user_email)  REFERENCES USER(email) ON
+                                 DELETE CASCADE,  PRIMARY KEY (mailinglist_email, user_email) )  ;
 
 
 INSERT INTO mailinglist (email)

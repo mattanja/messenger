@@ -4,6 +4,7 @@ import anorm._
 import play.api.db._
 import play.api.Play.current
 import anorm.SqlParser._
+import play.api.Logger
 
 /**
 
@@ -19,19 +20,18 @@ case class MailinglistMembership(
 
 object MailinglistMembership {
   
-   //ONLY FOR TEST!!!!!!!!
-  def deleteAll = {
-    DB.withConnection{ implicit connection =>
-      SQL("DELETE FROM mailinglist_member").execute
-    }
-  }
-  def create(mailinglist_email: String, user_email: String) {
+  
+  def create(mailinglist_email: String, user_email: String) = 
     DB.withConnection { implicit c =>
+      try {
       SQL("insert into mailinglist_member values ({mailinglist_email}, {user_email})").
       on('mailinglist_email -> mailinglist_email,
           'user_email -> user_email).executeUpdate()
+    } catch {
+      case e: Exception => Logger.error("Could not create relationship" + e); 0
     }
   }
+  
   
   def findAll = {
     val all = SQL("Select * from mailinglist_member")
@@ -43,4 +43,10 @@ object MailinglistMembership {
 	groupedMembers.map {case (k,v) => Mailinglist(k,v)}
   }
   }
+   //ONLY FOR TEST!!!!!!!!
+  def deleteAll = 
+    DB.withConnection{ implicit connection =>
+      SQL("DELETE FROM mailinglist_member").execute
+    }
+  
 }

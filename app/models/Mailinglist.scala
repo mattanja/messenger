@@ -10,13 +10,10 @@ case class Mailinglist(
   email: String,
   members: List[String] = List.empty) {
 
-  def add(member: User) = 
-    add(member.email)
-  }
-
-  def add(member: String) = {
-    MailinglistMembership.create(email, member)
-  }
+  def add(member: User): Int =  add(member.email)
+  
+  def add(member: String): Int = MailinglistMembership.create(email, member)
+  
   override def toString = "Maillist: " + email + " Members: " + members
 }
 /**
@@ -71,7 +68,6 @@ object Mailinglist {
 
  
  private def groupMembersWithLists(groupsAndMembers: List[(String, String)]) = {
-    println(groupsAndMembers + "ASDLIjasd")
     val groupedMembers = groupsAndMembers.groupBy(_._1) mapValues (_.map(_._2))
     groupedMembers.map { case (k, v) => Mailinglist(k, v) }
   }

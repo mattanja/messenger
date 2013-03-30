@@ -6,14 +6,24 @@ import play.api.db._
 import play.api.Play.current
 import play.api.Logger
 
-case class Mailinglist(
+abstract class Mailing {
+  val members: List[String]
+}
+
+case class Mailinglist (
   email: String,
-  members: List[String] = List.empty) {
+  members: List[String] = List.empty) extends Mailing{
 
   def add(member: User): Int =  add(member.email)
   
   def add(member: String): Int = MailinglistMembership.create(email, member)
   
+  def findUsers = Mailinglist.findByEmailWithUsers(email).
+  					getOrElse(EmptyMailinglist).members
+  
+  object EmptyMailinglist extends Mailing {
+  val members = List.empty
+}
   override def toString = "Maillist: " + email + " Members: " + members
 }
 /**
@@ -21,6 +31,8 @@ case class Mailinglist(
  * https://github.com/playframework/Play20/wiki/ScalaAnorm
  */
 object Mailinglist {
+
+  def findUsers(mailList: String) = Mailinglist(mailList).findUsers
 
   def findAllWithUsers = DB.withConnection {
     implicit c =>

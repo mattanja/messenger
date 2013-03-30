@@ -19,7 +19,12 @@ case class MailinglistMembership(
 
 object MailinglistMembership {
   
-   
+   //ONLY FOR TEST!!!!!!!!
+  def deleteAll = {
+    DB.withConnection{ implicit connection =>
+      SQL("DELETE FROM mailinglist_member").execute
+    }
+  }
   def create(mailinglist_email: String, user_email: String) {
     DB.withConnection { implicit c =>
       SQL("insert into mailinglist_member values ({mailinglist_email}, {user_email})").

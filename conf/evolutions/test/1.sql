@@ -1,4 +1,4 @@
-# Mailinglist SCHEMA
+	# Mailinglist SCHEMA
 #--!Ups
 
 CREATE TABLE mailinglist (--id integer NOT NULL DEFAULT nextval('task_id_seq'),
@@ -43,6 +43,11 @@ INSERT INTO USER (email,
 VALUES ('test@test.com.br',
         'test',
         'secret') ;
+
+INSERT INTO mailinglist_member (mailinglist_email, user_email) VALUES ('kuhnen@list.com.br', 'test@test.com.br');
+
+INSERT INTO mailinglist_member (mailinglist_email, user_email) VALUES ('kuhnen@list.com.br', 'kuhnen@terra.com.br');
+
 
 #--!Downs
 

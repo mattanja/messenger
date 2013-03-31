@@ -5,6 +5,7 @@ import play.api.db._
 import play.api.Play.current
 import anorm.SqlParser._
 import play.api.Logger
+import play.api.libs.json._
 
 /**
 
@@ -19,7 +20,7 @@ case class MailinglistMembership(
 
 
 object MailinglistMembership {
-  
+  implicit val fmt = Json.format[MailinglistMembership]
   
   def create(mailinglist_email: String, user_email: String) = 
     DB.withConnection { implicit c =>

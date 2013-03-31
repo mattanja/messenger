@@ -56,9 +56,21 @@ object List extends Controller with Secured {
       Async {
         models.User.findByEmail(username).map { user =>
           // Actual action
-          Promise.pure(Ok(views.html.List.edit(email, models.Mailinglist.findByEmailWithUsers(email), user)))
+          Promise.pure(Ok(views.html.List.detail(email, models.Mailinglist.findByEmailWithUsers(email), user)))
         }.getOrElse(Promise.pure(Forbidden))
       }
+  }
+
+  def update(email: String) = IsAuthenticated { username => implicit request =>
+    Async {
+      models.User.findByEmail(username).map { user =>
+
+        // JSON
+
+        // Authenticated async action
+        Promise.pure(Ok)
+      }.getOrElse(Promise.pure(Forbidden))
+    }
   }
 
   def addMember() = IsAuthenticated { username => implicit request =>

@@ -1,0 +1,33 @@
+@(listname: String, mailinglist: Option[models.Mailinglist], user: models.User)
+
+@import helper._
+@import helper.twitterBootstrap._
+
+@mailinglist.map { list =>
+	@main(list.email, user) {
+		<h1>@list.email</h1>
+
+		<ul>
+			@list.members.map { member =>
+				<li>@member</li>
+			}
+		</ul>
+
+		<h3>Add new member</h3>
+
+		@*
+		@listForm.globalErrors.map { error =>
+			<div>@error</div>
+		}
+
+		@form(routes.List.newList) {
+			@inputText(listForm("email"))	
+			<input class="btn" type="submit" value="Create" />
+		}
+		*@
+	}
+}.getOrElse {
+	@main("Not found", user) {
+		<div>List not found: @listname</div>
+	}
+}

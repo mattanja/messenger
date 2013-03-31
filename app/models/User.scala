@@ -6,6 +6,7 @@ import play.api.libs.json._
 import anorm._
 import anorm.SqlParser._
 import play.api.Logger
+import play.api.libs.json._
 
 case class User(
   email: String,
@@ -18,21 +19,8 @@ case class User(
  */
 object User {
 
-  /**
-   * JsonFormat
-   */
-  implicit object UserJsonFormat extends Format[User] {
-    def reads(json: JsValue) = JsSuccess(User(
-      (json \ "email").as[String],
-      (json \ "name").as[String],
-      (json \ "password").as[String]))
-
-    def writes(u: User): JsValue = JsObject(List(
-      "email" -> JsString(u.email),
-      "name" -> JsString(u.name),
-      "password" -> JsString(u.password)))
-  }
-
+  implicit val fmt = Json.format[User]
+  
   // -- Parsers
 
   /**

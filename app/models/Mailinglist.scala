@@ -5,6 +5,7 @@ import anorm.SqlParser._
 import play.api.db._
 import play.api.Play.current
 import play.api.Logger
+import play.api.libs.json._
 
 abstract class Mailing {
   val members: List[String]
@@ -22,15 +23,18 @@ case class Mailinglist (
   					getOrElse(EmptyMailinglist).members
   
   object EmptyMailinglist extends Mailing {
-  val members = List.empty
-}
+    val members = List.empty
+  }
+  
   override def toString = "Maillist: " + email + " Members: " + members
 }
+
 /**
  * This uses ScalaAnorm, packaged with play! framework 2
  * https://github.com/playframework/Play20/wiki/ScalaAnorm
  */
 object Mailinglist {
+  implicit val fmt = Json.format[Mailinglist]
 
   def findUsers(mailList: String) = Mailinglist(mailList).findUsers
 

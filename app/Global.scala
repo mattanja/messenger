@@ -7,8 +7,7 @@ import play.api.db.DB
 object Global extends GlobalSettings {
 
   var smtpServer: SMTPServer = _
-  var h2webserver: org.h2.server.web.WebServer = _
-  
+
   override def onStart(app: Application) {
     Logger.info("Starting application")
     Logger.info("Configuration db.default.driver: " + Play.current.configuration.getString("db.default.driver"))
@@ -21,11 +20,6 @@ object Global extends GlobalSettings {
     smtpServer.setPort(port)
     Logger.info("Starting SMTP-server on port " + smtpServer.getPort() + "...")
     smtpServer.start()
-
-    h2webserver = new org.h2.server.web.WebServer()
-    h2webserver.init("-web,-webAllowOthers,true,-webPort,8082")
-    h2webserver.start()
-    Logger.info("Starting h2 dev server: " + h2webserver.getPort())
   }
 
   override def onStop(app: Application) {
@@ -33,9 +27,6 @@ object Global extends GlobalSettings {
   
     Logger.info("Stopping SMTP-server...")
     smtpServer.stop()
-   
-    Logger.info("Stopping H2-webserver...")
-    h2webserver.stop()
   }
 
   //  override def onError(request, ex) {

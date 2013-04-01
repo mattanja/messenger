@@ -9,7 +9,7 @@
 
 		<ul>
 			@list.members.map { member =>
-				<li>@member</li>
+				<li><a href="@routes.User.detail(member)">@member</a></li>
 			}
 		</ul>
 

@@ -13,7 +13,6 @@ GET      /logout               controllers.Application.logout
 # Lists
 GET      /lists                controllers.List.index
 POST     /list/newList         controllers.List.newList
-GET      /list/test            controllers.List.test
 GET      /list/:email          controllers.List.detail(email: String)
 POST     /list/update/:email   controllers.List.update(email: String)
 DELETE   /list/delete/:email   controllers.List.delete(email: String)

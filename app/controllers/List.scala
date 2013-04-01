@@ -8,7 +8,7 @@ import play.api.libs.json._
 import play.api.libs.concurrent._
 import models._
 import models.ViewModel._
-import org.omg.CosNaming.NamingContextPackage.NotFound
+//import org.omg.CosNaming.NamingContextPackage.NotFound
 
 object List extends Controller with Secured {
 
@@ -21,9 +21,10 @@ object List extends Controller with Secured {
   /**
    *
    */
-  def index = IsAuthenticated { username => implicit request =>
+  def index = IsAuthenticated { username =>
+    implicit request =>
       models.User.findByEmail(username).map { user =>
-       Ok(views.html.List.index(Mailinglist.findAll, listForm, user))
+        Ok(views.html.List.index(Mailinglist.findAll, listForm, user))
       }.getOrElse(Forbidden)
   }
 
@@ -54,40 +55,38 @@ object List extends Controller with Secured {
   /**
    * The list detail view.
    */
-  def detail(email: String) = IsAuthenticated { username => implicit request =>
+  def detail(email: String) = IsAuthenticated { username =>
+    implicit request =>
       Async {
         models.User.findByEmail(username).map { user =>
           Promise.pure(
-	          render {
-	            case Accepts.Html() => Ok(views.html.List.detail(email, models.Mailinglist.findByEmailWithUsers(email), user))
-	            case Accepts.Json() => Ok(Json.toJson(models.Mailinglist.findByEmailWithUsers(email)))
-	          }
-		  )
+            render {
+              case Accepts.Html() => Ok(views.html.List.detail(email, models.Mailinglist.findByEmailWithUsers(email), user))
+              case Accepts.Json() => Ok(Json.toJson(models.Mailinglist.findByEmailWithUsers(email)))
+            })
         }.getOrElse(Promise.pure(Forbidden))
       }
   }
 
-  def test = Action {
-    Ok(Json.toJson(ListUpdateViewModel("test@test.com", models.User("test@test.com", "", "") :: models.User("test2@test.com", "", "") :: Nil)))
-  }
-
-  def update(email: String) = IsAuthenticated { username => implicit request =>
-    Async {
+  def update(email: String) = IsAuthenticated { username =>
+    implicit request =>
       models.User.findByEmail(username).map { user =>
         // JSON
-          request.body.asJson.map { json =>
-              json.validate(ListUpdateViewModel.fmt).map { m =>
-                m.addMembers.map { member =>
-                  models.User.create(models.User(member.email, member.name, member.password))
-                  MailinglistMembership.create(m.email, member.email)
-                }
-                Promise.pure(Ok("Updated... " + m.email))
-            }.recoverTotal {
-              e => Promise.pure(BadRequest("Detected error: " + JsError.toFlatJson(e)))
+        request.body.asJson.map { json =>
+          json.validate(ListUpdateViewModel.fmt).map { m =>
+            m.addMembers.map { member =>
+              models.User.create(models.User(member.email, member.name, member.password))
+              MailinglistMembership.create(m.email, member.email)
             }
-          }.getOrElse(Promise.pure(BadRequest("no json")))
-      }.getOrElse(Promise.pure(BadRequest("List not found")))
-    }
+            m.removeMembers.map { member =>
+              MailinglistMembership.delete(m.email, member.email)
+            }
+            Ok("Updated... " + m.email)
+          }.recoverTotal {
+            e => BadRequest("Detected error: " + JsError.toFlatJson(e))
+          }
+        }.getOrElse(BadRequest("no json"))
+      }.getOrElse(BadRequest("List not found"))
   }
 
   // def update(email: String) = Action(parse.json) { request => {
@@ -98,25 +97,27 @@ object List extends Controller with Secured {
   //   }
   // }}
 
-  def addMember() = IsAuthenticated { username => implicit request =>
-    Async {
-      models.User.findByEmail(username).map { user =>
-        // Authenticated async action
-        Promise.pure(Ok)
-      }.getOrElse(Promise.pure(Forbidden))
-    }
+  def addMember() = IsAuthenticated { username =>
+    implicit request =>
+      Async {
+        models.User.findByEmail(username).map { user =>
+          // Authenticated async action
+          Promise.pure(Ok)
+        }.getOrElse(Promise.pure(Forbidden))
+      }
   }
 
-  def removeMember(mailinglist_email: String, user_email: String) = IsAuthenticated { username => implicit request =>
-    Async {
-      models.User.findByEmail(username).map { user =>
-        // Authenticated async action
+  def removeMember(mailinglist_email: String, user_email: String) = IsAuthenticated { username =>
+    implicit request =>
+      Async {
+        models.User.findByEmail(username).map { user =>
+          // Authenticated async action
 
-        //MailinglistMembership.delete(mailinglist_email, user_email)
+          //MailinglistMembership.delete(mailinglist_email, user_email)
 
-        Promise.pure(Ok)
-      }.getOrElse(Promise.pure(Forbidden))
-    }
+          Promise.pure(Ok)
+        }.getOrElse(Promise.pure(Forbidden))
+      }
   }
 
   /**

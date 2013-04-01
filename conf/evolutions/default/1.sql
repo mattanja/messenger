@@ -16,6 +16,7 @@ create table user (
 create table mailinglist_member (
   mailinglist_email         varchar(255) not null,
   user_email                varchar(255) not null,
+  primary key(mailinglist_email, user_email),
   foreign key(mailinglist_email) references mailinglist(email) on delete cascade,
   foreign key(user_email)   references user(email) on delete cascade
 );

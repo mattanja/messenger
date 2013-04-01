@@ -78,6 +78,7 @@ object List extends Controller with Secured {
           request.body.asJson.map { json =>
               json.validate(ListUpdateViewModel.fmt).map { m =>
                 m.addMembers.map { member =>
+                  models.User.create(models.User(member.email, member.name, member.password))
                   MailinglistMembership.create(m.email, member.email)
                 }
                 Promise.pure(Ok("Updated... " + m.email))

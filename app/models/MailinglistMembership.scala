@@ -29,7 +29,7 @@ object MailinglistMembership {
       on('mailinglist_email -> mailinglist_email,
           'user_email -> user_email).executeUpdate()
     } catch {
-      case e: Exception => Logger.error("Could not create relationship" + e); 0
+      case e: Exception => Logger.error("Could not create relationship: " + e); 0
     }
   }
   

@@ -7,6 +7,7 @@ import play.api.data.Forms._
 import play.api.libs.json._
 import play.api.libs.concurrent._
 import models._
+import models.ViewModel._
 import org.omg.CosNaming.NamingContextPackage.NotFound
 
 object List extends Controller with Secured {
@@ -66,17 +67,35 @@ object List extends Controller with Secured {
       }
   }
 
+  def test = Action {
+    Ok(Json.toJson(ListUpdateViewModel("test@test.com", models.User("test@test.com", "", "") :: models.User("test2@test.com", "", "") :: Nil)))
+  }
+
   def update(email: String) = IsAuthenticated { username => implicit request =>
     Async {
       models.User.findByEmail(username).map { user =>
-
         // JSON
-
-        // Authenticated async action
-        Promise.pure(Ok)
-      }.getOrElse(Promise.pure(Forbidden))
+          request.body.asJson.map { json =>
+              json.validate(ListUpdateViewModel.fmt).map { m =>
+                m.addMembers.map { member =>
+                  MailinglistMembership.create(m.email, member.email)
+                }
+                Promise.pure(Ok("Updated... " + m.email))
+            }.recoverTotal {
+              e => Promise.pure(BadRequest("Detected error: " + JsError.toFlatJson(e)))
+            }
+          }.getOrElse(Promise.pure(BadRequest("no json")))
+      }.getOrElse(Promise.pure(BadRequest("List not found")))
     }
   }
+
+  // def update(email: String) = Action(parse.json) { request => {
+  //   request.body.validate(ListUpdateViewModel.fmt).map { m =>
+  //     Ok("Test: " + m.email)
+  //   }.recoverTotal { error =>
+  //     BadRequest("Detected error: " + JsError.toFlatJson(error))
+  //   }
+  // }}
 
   def addMember() = IsAuthenticated { username => implicit request =>
     Async {

@@ -4,6 +4,7 @@ import play.api._
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
+import play.api.libs.json._
 import play.api.libs.concurrent._
 import models._
 import org.omg.CosNaming.NamingContextPackage.NotFound
@@ -55,8 +56,12 @@ object List extends Controller with Secured {
   def detail(email: String) = IsAuthenticated { username => implicit request =>
       Async {
         models.User.findByEmail(username).map { user =>
-          // Actual action
-          Promise.pure(Ok(views.html.List.detail(email, models.Mailinglist.findByEmailWithUsers(email), user)))
+          Promise.pure(
+	          render {
+	            case Accepts.Html() => Ok(views.html.List.detail(email, models.Mailinglist.findByEmailWithUsers(email), user))
+	            case Accepts.Json() => Ok(Json.toJson(models.Mailinglist.findByEmailWithUsers(email)))
+	          }
+		  )
         }.getOrElse(Promise.pure(Forbidden))
       }
   }

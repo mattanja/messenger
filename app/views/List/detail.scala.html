@@ -5,15 +5,35 @@
 
 @mailinglist.map { list =>
 	@main(list.email, user) {
+
+	@* TODO change to real angularjs application (loading from JSON via action, not in template) *@
+
+	<div ng-controller="ListController">
 		<h1>@list.email</h1>
 
 		<ul>
+			<li ng-repeat="member in members">
+				<span>{{member.memberemail}}</span>
+				<span class="btn" ng-click="removeMember('{{member.memberemail}}')">Remove from list</span>
+			</li>
+		</ul>
+
+		<ul>
 			@list.members.map { member =>
-				<li><a href="@routes.User.detail(member)">@member</a></li>
+				<li>
+					<a href="@routes.User.detail(member)">@member</a>
+					<a class="btn">Remove from list</a>
+				</li>
 			}
 		</ul>
 
 		<h3>Add new member</h3>
+
+		<form ng-submit="addMember()">
+			<input type="text" ng-model="newMemberemail" placeholder="add new member email address" />
+			<input class="btn" type="submit" value="add" />
+		</form>
+	</div>
 
 		@*
 		@listForm.globalErrors.map { error =>
@@ -21,7 +41,7 @@
 		}
 
 		@form(routes.List.newList) {
-			@inputText(listForm("email"))	
+			@inputText(listForm("email"))
 			<input class="btn" type="submit" value="Create" />
 		}
 		*@

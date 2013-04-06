@@ -24,7 +24,7 @@
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
         <script src="@routes.Assets.at("js/vendor/modernizr-2.6.2-respond-1.1.0.min.js")" type="text/javascript"></script>
     </head>
-    <body>
+    <body ng-app>
         <!--[if lt IE 7]>
             <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
         <![endif]-->
@@ -42,7 +42,7 @@
                         <ul class="nav">
                             <li><a href="@routes.List.index">Mailinglists</a></li>
                             <li><a href="@routes.User.index">Users</a></li>
-                            <!-- 
+                            <!--
                             <li><a href="#contact">Contact</a></li>
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
@@ -90,8 +90,14 @@
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="@routes.Assets.at("js/vendor/jquery-1.9.1.min.js")""><\/script>')</script>
 
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.1.4/angular.min.js"></script>
+        <script>window.angular || document.write('<script src="@routes.Assets.at("js/vendor/angular.min.js")""><\/script>')</script>
+
         <script src="@routes.Assets.at("js/vendor/bootstrap.min.js")"></script>
         <script src="@routes.Assets.at("js/main.js")"></script>
+
+        @* Angular controllers and stuff *@
+        <script src="@routes.Assets.at("js/angular/main.js")"></script>
 
         <script>
             var _gaq=[['_setAccount','UA-39149392-1'],['_trackPageview']];

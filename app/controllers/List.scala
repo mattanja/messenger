@@ -81,7 +81,7 @@ object List extends Controller with Secured {
             m.removeMembers.map { member =>
               MailinglistMembership.delete(m.email, member.email)
             }
-            Ok("Updated... " + m.email)
+            Ok(Json.toJson(models.Mailinglist.findByEmailWithUsers(email)))
           }.recoverTotal {
             e => BadRequest("Detected error: " + JsError.toFlatJson(e))
           }

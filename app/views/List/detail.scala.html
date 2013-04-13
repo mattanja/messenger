@@ -12,12 +12,13 @@
 		<h1>@list.email</h1>
 
 		<ul>
-			<li ng-repeat="member in members">
-				<span>{{member.memberemail}}</span>
-				<span class="btn" ng-click="removeMember('{{member.memberemail}}')">Remove from list</span>
+			<li ng-repeat="member in currentlist.members">
+				<span>{{member}}</span>
+				<span class="btn" ng-click="removeMember('{{member}}')">Remove from list</span>
 			</li>
 		</ul>
 
+		@*
 		<ul>
 			@list.members.map { member =>
 				<li>
@@ -26,6 +27,7 @@
 				</li>
 			}
 		</ul>
+		*@
 
 		<h3>Add new member</h3>
 

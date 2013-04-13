@@ -15,24 +15,30 @@ import java.io.ByteArrayOutputStream
 import play.api.Logger
 import org.apache.james.mime4j.dom.Body
 
-case class EmailContents(txtBody: String, htmlBody: String, attachments: List[BodyPart])
+case class EmailContents(
+		subject: String,
+		txtBody: String,
+		htmlBody: String,
+		attachments: List[BodyPart])
 
 object EmailContents {
 
-  implicit def entityToMultipart(entity: Body)= entity.asInstanceOf[Multipart]
-  
+  implicit def entityToMultipart(entity: Body) = entity.asInstanceOf[Multipart]
+
   def apply(in: InputStream): EmailContents = {
     val builder = new DefaultMessageBuilder();
     val message = builder.parseMessage(in)
+    val subject = message.getSubject()
     val (txt, html, attachs) = parse(message)
     message.dispose
-    EmailContents(txt.toString(), html.toString(), attachs)
+    EmailContents(subject, txt.toString(), html.toString(), attachs)
   }
 
   def parse(mimeMsg: Message) = {
     val txtBody: StringBuffer = new StringBuffer
     val htmlBody: StringBuffer = new StringBuffer
     val attachments: List[BodyPart] = List.empty
+    //val subject = mimeMsg.getSubject()
 
     def parseBodyParts(multipart: Multipart) {
 
@@ -43,6 +49,9 @@ object EmailContents {
         case "text/html" =>
           val html = getTxtPart(part)
           htmlBody.append(html)
+
+        case x: String => println("Qhat!   " + x)
+
         case _ => if (part.getDispositionType() != null &&
           !part.getDispositionType().equals(""))
           //If DispositionType is null or empty, it means that it's multipart, not attached file  

@@ -19,13 +19,6 @@ case class Mailinglist (
   
   def add(member: String): Int = MailinglistMembership.create(email, member)
   
-  def findUsers = Mailinglist.findByEmailWithUsers(email).
-  					getOrElse(EmptyMailinglist).members
-  
-  object EmptyMailinglist extends Mailing {
-    val members = List.empty
-  }
-  
   override def toString = "Maillist: " + email + " Members: " + members
 }
 
@@ -36,8 +29,11 @@ case class Mailinglist (
 object Mailinglist {
   implicit val fmt = Json.format[Mailinglist]
 
-  def findUsers(mailList: String) = Mailinglist(mailList).findUsers
-
+  //def apply(mailList: String) = new Mailinglist(mailList, findUsers(mailList))
+ 
+  def findUsers(mailList: String) = Mailinglist.findByEmailWithUsers(mailList).
+  					getOrElse(EmptyMailinglist).members
+  
   def findAllWithUsers = DB.withConnection {
     implicit c =>
       groupMembersWithLists(
@@ -95,5 +91,10 @@ object Mailinglist {
       }
 
   def simple = get[String]("mailinglist.email")
+  
+  object EmptyMailinglist extends Mailing {
+    val members = List.empty
+  }
+  
 
 }

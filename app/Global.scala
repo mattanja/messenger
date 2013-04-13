@@ -9,23 +9,23 @@ object Global extends GlobalSettings {
   var smtpServer: SMTPServer = _
 
   override def onStart(app: Application) {
-    Logger.info("Starting application")
-    Logger.info("Configuration db.default.driver: " + Play.current.configuration.getString("db.default.driver"))
-    Logger.info("Configuration mail.host: " + Play.current.configuration.getString("smtp.host").getOrElse("INVALID"))
+    Logger.trace("Starting application")
+    Logger.trace("Configuration db.default.driver: " + Play.current.configuration.getString("db.default.driver"))
+    Logger.trace("Configuration mail.host: " + Play.current.configuration.getString("smtp.host").getOrElse("INVALID"))
     val port = Play.current.configuration.getInt("smtp.port").getOrElse(66666)
-    Logger.info("Configuration mail.host.port: " + port)
+    Logger.trace("Configuration mail.host.port: " + port)
     InitialData.insert()
     //Actor here, with the Messenger Handler
     smtpServer = new SMTPServer(new MessengerMessageHandlerFactory)
     smtpServer.setPort(port)
-    Logger.info("Starting SMTP-server on port " + smtpServer.getPort() + "...")
+    Logger.trace("Starting SMTP-server on port " + smtpServer.getPort() + "...")
     smtpServer.start()
   }
 
   override def onStop(app: Application) {
-    Logger.info("Stopping application...")
+    Logger.trace("Stopping application...")
   
-    Logger.info("Stopping SMTP-server...")
+    Logger.trace("Stopping SMTP-server...")
     smtpServer.stop()
   }
 
@@ -44,7 +44,7 @@ object InitialData {
 
   def insert() = {
     if (User.findAll.isEmpty) {
-      Logger.info("Inserting initial user data...")
+      Logger.trace("Inserting initial user data...")
       Seq(
         User("mattanja.kern@gmail.com", "Matt", "secret"),
         User("test@test.test", "test", "secret")).foreach(User.create)

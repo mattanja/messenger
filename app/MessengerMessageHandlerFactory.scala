@@ -17,6 +17,8 @@ import play.api.Play
 import org.apache.commons.mail.SimpleEmail
 import org.apache.commons.mail.DefaultAuthenticator
 import models.EmailContents
+import models.MailinglistMembership
+import models.Mailinglist
 
 // For a more advanced message handling, check https://code.google.com/p/subetha/source/browse/trunk/src/org/subethamail/core/smtp/SMTPHandler.java
 
@@ -54,12 +56,15 @@ class MessengerSimpleMessageListener extends SimpleMessageListener {
     // TODO: Send mail to members of mailinglist with the name of "recipient"
     // val members = MailinglistMembers.findByMailinglist(recipient)
     // foreach member send mail
-
+//	MailinglistMembership.
     // Just for testing: Return message to sender
-    sendMail("messenger@localhost", from, data)
+	val members = Mailinglist.findUsers(recipient)
+	val emailContents = EmailContents(data);
+	members foreach (sendMail(_, from, emailContents)) 
+	data.close()
   }
 
-  def sendMail(from: String, to: String, data: InputStream): Unit = {
+  def sendMail(from: String, to: String, emailContents: EmailContents) {//datatext: InputStream): Unit = {
 
     val email = new SimpleEmail();
     val (host, auth, port) = getProperties
@@ -71,11 +76,9 @@ class MessengerSimpleMessageListener extends SimpleMessageListener {
 
     //email.setSSLOnConnect(true);
     email.setFrom(from);
-    email.setSubject("TestMail");
-    val emailData: String = EmailContents(data).txtBody;
-    data.close()
-    //email.setContent(emailData)//for multi part if needed
-    email.setMsg(emailData);
+    email.setSubject(emailContents.subject);
+    //email.setContent(multilData)//for multi part if needed
+    email.setMsg(emailContents.txtBody);
     email.addTo(to);
     email.send();
   }

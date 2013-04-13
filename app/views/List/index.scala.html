@@ -4,19 +4,19 @@
 @import helper.twitterBootstrap._
 
 @main("Mailing list", user) {
-    
+
     <h1>@lists.size list(s) </h1>
-    
+
     <ul>
     	@lists.map { list =>
-    		<li><a href="@routes.List.detail(list)">@list</a> 
+    		<li><a href="@routes.List.detail(list)">@list</a>
     			@form(routes.List.delete(list)) {
                     <input class="btn" type="submit" value="Delete" />
                 }
     		</li>
     	}
     </ul>
-    
+
 	<h2>Create new list</h2>
 
 	@listForm.globalErrors.map { error =>
@@ -25,7 +25,7 @@
 
 	@form(routes.List.newList) {
 		@inputText(listForm("email"))
-		
+
 		<input class="btn" type="submit" value="Create" />
 	}
 }

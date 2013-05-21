@@ -4,8 +4,8 @@ import play.api.libs.json._
 
 case class ListUpdateViewModel(
 	email: String,
-	addMembers: List[models.User] = Nil,
-	removeMembers: List[models.User] = Nil
+	addMembers: List[String] = Nil,
+	removeMembers: List[String] = Nil
 )
 
 

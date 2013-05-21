@@ -29,7 +29,17 @@ object MailinglistMembership {
       case e: Exception => Logger.error("Could not create relationship: " + e); 0
     }
   }
-  
+
+  def create(mailinglist_email: String, user: User) = DB.withConnection { implicit c =>
+    try {
+      SQL("insert into mailinglist_member values ({mailinglist_email}, {user_email})").
+        on('mailinglist_email -> mailinglist_email,
+          'user_email -> user.email).executeUpdate()
+    } catch {
+      case e: Exception => Logger.error("Could not create relationship: " + e); 0
+    }
+  }
+
   def delete(mailinglist_email: String, user_email: String) = DB.withConnection { implicit c =>
     try {
       SQL("delete from mailinglist_member where mailinglist_email = {mailinglist_email} and user_email = {user_email}").

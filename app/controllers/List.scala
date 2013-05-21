@@ -68,18 +68,27 @@ object List extends Controller with Secured {
       }
   }
 
+  /** Update the content of a list
+   *
+   * The request expects
+   *
+   * @param email the email-address of the list to be updated
+   */
   def update(email: String) = IsAuthenticated { username =>
     implicit request =>
       models.User.findByEmail(username).map { user =>
         // JSON
         request.body.asJson.map { json =>
           json.validate(ListUpdateViewModel.fmt).map { m =>
-            m.addMembers.map { member =>
-              models.User.create(models.User(member.email, member.name, member.password))
-              MailinglistMembership.create(m.email, member.email)
+            m.addMembers.map { memberEmail =>
+              // Validate member
+              MailinglistMembership.create(
+                m.email,
+                models.User.findByEmail(memberEmail) getOrElse(throw new Exception("No user with this email found: " + memberEmail))
+              )
             }
             m.removeMembers.map { member =>
-              MailinglistMembership.delete(m.email, member.email)
+              MailinglistMembership.delete(m.email, member)
             }
             Ok(Json.toJson(models.Mailinglist.findByEmailWithUsers(email)))
           }.recoverTotal {

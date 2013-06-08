@@ -19,7 +19,7 @@ object ApplicationBuild extends Build {
     anorm)
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
-    // Add your own project settings here
+    // write test reports and to console
+    testOptions in Test += Tests.Argument("junitxml", "console")
   )
-
 }

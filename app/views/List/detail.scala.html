@@ -1,15 +1,11 @@
-@(listname: String, mailinglist: Option[models.Mailinglist], user: models.User)
+@(user: models.User, email: String)
 
 @import helper._
 @import helper.twitterBootstrap._
 
-@mailinglist.map { list =>
-	@main(list.email, user) {
-
-	@* TODO change to real angularjs application (loading from JSON via action, not in template) *@
-
+@main(email, user) {
 	<div ng-controller="ListController">
-		<h1>@list.email</h1>
+		<h1 ng-bind="currentlist.email">@email</h1>
 
 		<ul>
 			<li ng-repeat="member in currentlist.members">
@@ -18,38 +14,12 @@
 			</li>
 		</ul>
 
-		@*
-		<ul>
-			@list.members.map { member =>
-				<li>
-					<a href="@routes.User.detail(member)">@member</a>
-					<a class="btn">Remove from list</a>
-				</li>
-			}
-		</ul>
-		*@
-
 		<h3>Add new member</h3>
 
-		<form ng-submit="addMember()">
-			<input type="text" ng-model="newMemberemail" placeholder="add new member email address" />
+		<form ng-submit="addMember()" name="addMemberForm" class="form-inline">
+			<input type="email" name="newMemberemail" ng-model="newMemberemail" placeholder="add new member email address" required />
+			<!-- <span ng-show="addMemberForm.newMemberemail.$error.required" class="help-block">Required</span> -->
 			<input class="btn" type="submit" value="add" />
 		</form>
 	</div>
-
-		@*
-		@listForm.globalErrors.map { error =>
-			<div>@error</div>
-		}
-
-		@form(routes.List.newList) {
-			@inputText(listForm("email"))
-			<input class="btn" type="submit" value="Create" />
-		}
-		*@
-	}
-}.getOrElse {
-	@main("Not found", user) {
-		<div>List not found: @listname</div>
-	}
 }

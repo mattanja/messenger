@@ -61,7 +61,9 @@ object List extends Controller with Secured {
         models.User.findByEmail(username).map { user =>
           Promise.pure(
             render {
-              case Accepts.Html() => Ok(views.html.List.detail(email, models.Mailinglist.findByEmailWithUsers(email), user))
+              // For regular request render empty view only
+              case Accepts.Html() => Ok(views.html.List.detail(user, email)) //, models.Mailinglist.findByEmailWithUsers(email), user))
+              // Get data for JSON request
               case Accepts.Json() => Ok(Json.toJson(models.Mailinglist.findByEmailWithUsers(email)))
             })
         }.getOrElse(Promise.pure(Forbidden))

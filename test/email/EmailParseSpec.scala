@@ -18,9 +18,9 @@ import play.api.test.Helpers.running
 object EmailParseSpec extends Specification {
 
 
-    "Email received" should { 
+    "Email received" should {
       "be parsed" in running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
-    
+
     val writer = new DefaultMessageWriter()
     println(Message.message.toString)
     val out = new ByteArrayOutputStream()
@@ -28,14 +28,14 @@ object EmailParseSpec extends Specification {
     val inputStream = new ByteArrayInputStream(out.toString.getBytes)
     val Expected = ("This is a message just to "
                 + "say hello.\r\nSo, \"Hello\".")
-                
+
     Expected must equalTo(EmailContents(inputStream).txtBody)
       }
   }
-    
- 
-    
-  
+
+
+
+
 object Message {
   // 1) start with an empty message
 
@@ -72,4 +72,4 @@ object Message {
 
       //  message.dispose();
     }
-} 
+}

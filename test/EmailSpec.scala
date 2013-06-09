@@ -4,6 +4,7 @@ import play.api.test._
 import play.api.test.Helpers._
 import com.typesafe.plugin._
 import play.api.Play.current
+
 import database.DBFake
 
 class EmailSpec extends Specification with DBFake {

@@ -1,0 +1,16 @@
+@(user: models.User, detailUser: models.User)
+
+@import helper._
+
+@main("User", user) {
+	<h2>@detailUser.name (@detailUser.email)</h2>
+
+	<ul>
+		<li>email: @detailUser.email</li>
+		<li>name: @detailUser.name</li>
+		<li>password: @detailUser.password</li>
+	</ul>
+
+	<h3>Memberships:</h3>
+
+}

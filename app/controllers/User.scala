@@ -11,8 +11,20 @@ import org.omg.CosNaming.NamingContextPackage.NotFound
 
 object User extends Controller with Secured {
 
-  def index = TODO
-  
+  def index = IsAuthenticated { username =>
+    implicit request =>
+      Async {
+        models.User.findByEmail(username).map { user =>
+          Promise.pure(
+            render {
+              case Accepts.Html() => Ok(views.html.User.index(user, models.User.findAll))
+              case Accepts.Json() => Ok(Json.toJson(""))
+              //Ok(views.html.User.index() models.User.findAll
+            })
+        }.getOrElse(Promise.pure(Forbidden))
+      }
+  }
+
   /**
    * Get the user information.
    */
@@ -20,7 +32,7 @@ object User extends Controller with Secured {
     _ =>
       models.User.findByEmail(username).map { user =>
         models.User.findByEmail(email).map { detailUser =>
-          Ok(views.html.User.index(user, detailUser))
+          Ok(views.html.User.detail(user, detailUser))
         }.getOrElse(play.api.mvc.Results.NotFound("User not found"))
       }.getOrElse(Forbidden("Must be logged in"))
   }

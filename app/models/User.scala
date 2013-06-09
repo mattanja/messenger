@@ -20,7 +20,7 @@ case class User(
 object User {
 
   implicit val fmt = Json.format[User]
-  
+
   // -- Parsers
 
   /**
@@ -70,7 +70,7 @@ object User {
           'email -> user.email,
           'name -> user.name,
           'password -> user.password).executeUpdate()
-          
+
       } catch {
         case e: Exception => Logger.error("Could not create new user\n" + e); 0
       }

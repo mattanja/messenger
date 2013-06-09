@@ -1,13 +1,33 @@
-@(user: models.User, detailUser: models.User)
+@(user: User, users: Seq[User])
 
 @import helper._
+@import helper.twitterBootstrap._
 
-@main("User", user) {
-	<h2>Test</h2>
-	
-	<ul>
-		<li>name: @detailUser.name</li>
-		<li>password: @detailUser.password</li>
-		<li>email: @detailUser.email</li>
-	</ul>
+@main("Users", user) {
+
+    <h1>@users.size user(s) </h1>
+
+    <ul>
+    	@users.map { u =>
+    		<li><a href="@routes.User.detail(u.email)">@u</a>
+    			@form(routes.User.delete(u.email)) {
+                    <input class="btn" type="submit" value="Delete" />
+                }
+    		</li>
+    	}
+    </ul>
+
+    @*
+	<h2>Create new list</h2>
+
+	@listForm.globalErrors.map { error =>
+		<div>@error</div>
+	}
+
+	@form(routes.List.newList) {
+		@inputText(listForm("email"))
+
+		<input class="btn" type="submit" value="Create" />
+	}
+	*@
 }

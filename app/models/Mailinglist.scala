@@ -11,14 +11,14 @@ abstract class Mailing {
   val members: List[String]
 }
 
-case class Mailinglist (
+case class Mailinglist(
   email: String,
-  members: List[String] = List.empty) extends Mailing{
+  members: List[String] = List.empty) extends Mailing {
 
-  def add(member: User): Int =  add(member.email)
+  def add(member: User): Int = add(member.email)
   
   def add(member: String): Int = MailinglistMembership.create(email, member)
-  
+
   override def toString = "Maillist: " + email + " Members: " + members
 }
 
@@ -30,10 +30,10 @@ object Mailinglist {
   implicit val fmt = Json.format[Mailinglist]
 
   //def apply(mailList: String) = new Mailinglist(mailList, findUsers(mailList))
- 
+
   def findUsers(mailList: String) = Mailinglist.findByEmailWithUsers(mailList).
-  					getOrElse(EmptyMailinglist).members
-  
+    getOrElse(EmptyMailinglist).members
+
   def findAllWithUsers = DB.withConnection {
     implicit c =>
       groupMembersWithLists(
@@ -60,7 +60,6 @@ object Mailinglist {
     }
   }
 
- 
   def findByEmail(email: String): Option[String] = {
     DB.withConnection { implicit connection =>
       SQL("select * from mailinglist where email = {email}").on(
@@ -78,8 +77,7 @@ object Mailinglist {
     }
   }
 
- 
- private def groupMembersWithLists(groupsAndMembers: List[(String, String)]) = {
+  private def groupMembersWithLists(groupsAndMembers: List[(String, String)]) = {
     val groupedMembers = groupsAndMembers.groupBy(_._1) mapValues (_.map(_._2))
     groupedMembers.map { case (k, v) => Mailinglist(k, v) }
   }
@@ -91,10 +89,9 @@ object Mailinglist {
       }
 
   def simple = get[String]("mailinglist.email")
-  
+
   object EmptyMailinglist extends Mailing {
     val members = List.empty
   }
-  
 
 }

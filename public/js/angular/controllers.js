@@ -19,7 +19,7 @@ angular.module('messengerApp.controllers', [])
 }])
 
 // ListController
-.controller('ListController', function($scope, $http, $log, notify) {
+.controller('ListController', function($scope, $http, notify) {
 
 	// Init the objects used in this controller
 	$scope.currentlist = { email: "", members: [], };
@@ -32,7 +32,6 @@ angular.module('messengerApp.controllers', [])
 		$scope.currentlist = res.data;
 		$scope.messages = [];
 
-		$log.info("Data loaded.");
 		notify.info("List data loaded...");
 	}, function(response) {
 		// Error
@@ -67,4 +66,4 @@ angular.module('messengerApp.controllers', [])
 })
 
 // Not needed now, only with minification
-.$inject = ['$scope', '$http', '$log', 'notify'];
+.$inject = ['$scope', '$http', 'notify'];

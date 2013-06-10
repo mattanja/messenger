@@ -5,6 +5,16 @@
 
 @main(email, user) {
 	<div ng-controller="ListController">
+    	<div class="alert alert-block alert-error fade in hidden">
+    		<button type="button" class="close" data-dismiss="alert">×</button>
+			<ul>
+				<li ng-repeat="item in messages" class="text-{{item.messageType}}">
+					<span>{{item.message}}</span>
+				</li>
+			</ul>
+    	</div>
+
+
 		<h1 ng-bind="currentlist.email">@email</h1>
 
 		<ul>
@@ -17,8 +27,8 @@
 		<h3>Add new member</h3>
 
 		<form ng-submit="addMember()" name="addMemberForm" class="form-inline">
-			<input type="email" name="newMemberemail" ng-model="newMemberemail" placeholder="add new member email address" required />
-			<!-- <span ng-show="addMemberForm.newMemberemail.$error.required" class="help-block">Required</span> -->
+			<input ng-model="newMemberemail" type="email" name="input" placeholder="add new member email address" required />
+			<!-- <span ng-show="addMemberForm.input.$error.required" class="help-block">Required</span> -->
 			<input class="btn" type="submit" value="add" />
 		</form>
 	</div>

@@ -7,7 +7,7 @@ import play.api.data.Forms._
 import play.api.libs.json._
 import play.api.libs.concurrent._
 import models._
-import models.ViewModel._
+import models.JsonModel._
 //import org.omg.CosNaming.NamingContextPackage.NotFound
 
 object List extends Controller with Secured {
@@ -94,7 +94,7 @@ object List extends Controller with Secured {
             }
             Ok(Json.toJson(models.Mailinglist.findByEmailWithUsers(email)))
           }.recoverTotal {
-            e => BadRequest("Detected error: " + JsError.toFlatJson(e))
+            e => BadRequest("" + JsError.toFlatJson(e))
           }
         }.getOrElse(BadRequest("no json"))
       }.getOrElse(BadRequest("List not found"))

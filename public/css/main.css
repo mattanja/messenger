@@ -21,3 +21,10 @@ div.navbar form {
 	margin: 0px;
 }
 
+.alert.hidden {
+	display: none;
+}
+
+#toast-container {
+	margin-top: 40px;
+}

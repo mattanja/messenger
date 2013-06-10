@@ -72,7 +72,8 @@ object List extends Controller with Secured {
 
   /** Update the content of a list
    *
-   * The request expects
+   * The request expects an object of type ListUpdateViewModel.
+   * Returns ListUpdateResponse
    *
    * @param email the email-address of the list to be updated
    */
@@ -92,9 +93,9 @@ object List extends Controller with Secured {
             m.removeMembers.map { member =>
               MailinglistMembership.delete(m.email, member)
             }
-            Ok(Json.toJson(models.Mailinglist.findByEmailWithUsers(email)))
+            Ok(Json.toJson(new ListUpdateResponse(models.Mailinglist.findByEmailWithUsers(email))))
           }.recoverTotal {
-            e => BadRequest("" + JsError.toFlatJson(e))
+            e => BadRequest(Json.toJson(new ListUpdateResponse(Option.empty, false, Seq(e.toString()))))
           }
         }.getOrElse(BadRequest("no json"))
       }.getOrElse(BadRequest("List not found"))

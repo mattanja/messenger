@@ -22,15 +22,13 @@ angular.module('messengerApp.controllers', [])
 .controller('ListController', function($scope, $http, notify) {
 
 	// Init the objects used in this controller
-	$scope.currentlist = { email: "", members: [], };
-	$scope.newMemberemail = "test";
-	$scope.messages = [ { key: "status", message: "Loading...", messageType: "info", }, ];
+	$scope.currentlist = { email: '', members: [], };
+	$scope.newMemberemail = '';
 
 	// Async get of list data
 	$http.get('#').then(function(res) {
 		// Success
 		$scope.currentlist = res.data;
-		$scope.messages = [];
 
 		notify.info("List data loaded...");
 	}, function(response) {
@@ -43,9 +41,13 @@ angular.module('messengerApp.controllers', [])
 		var data = { email: $scope.currentlist.email, addMembers: [], removeMembers: [removeEmail]};
 		// TODO: make route configurable in the template
 		$http.post('/list/update/' + $scope.currentlist.email, data).then(function(response) {
-			// Success
-			$scope.currentlist = response.data;
-			$scope.messages = [];
+			var listUpdateResponse = response.data;
+			if (listUpdateResponse.success) {
+				$scope.currentlist = listUpdateResponse.mailinglist;
+				notify.info("Successfully removed member " + removeEmail);
+			} else {
+				notify.error("Error removing member " + removeEmail + ": " + listUpdateResponse.messages.join("\n<br />"));
+			}
 		}, function(response) {
 			// Error
 			notify.error("Error removing member");
@@ -53,14 +55,20 @@ angular.module('messengerApp.controllers', [])
 	}
 
 	$scope.addMember = function() {
-		var data = { email: $scope.currentlist.email, addMembers: [$scope.newMemberemail], removeMembers: []};
+		var addEmail = $scope.newMemberemail
+		var data = { email: $scope.currentlist.email, addMembers: [addEmail], removeMembers: []};
 		// TODO: make route configurable in the template
 		$http.post('/list/update/' + $scope.currentlist.email, data).then(function(response) {
-			// Success
-			$scope.currentlist = response.data;
-			$scope.messages = [];
+			var listUpdateResponse = response.data;
+			if (listUpdateResponse.success) {
+				$scope.currentlist = listUpdateResponse.mailinglist;
+				notify.info("Successfully added member " + addEmail);
+				$scope.newMemberemail = '';
+			} else {
+				notify.error("Error adding member " + addEmail + ": " + listUpdateResponse.messages.join("\n<br />"));
+			}
 		}, function(response) {
-			notify.error("Error adding member");
+			notify.error("Error adding member " + addEmail);
 		});
 	}
 })

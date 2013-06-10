@@ -1,5 +1,6 @@
 package models.JsonModel
 
+import models._
 import play.api.libs.json._
 
 /**
@@ -8,4 +9,14 @@ import play.api.libs.json._
 trait JsonResponse {
   def success: Boolean
   def messages: Seq[String]
+}
+
+case class ListUpdateResponse(
+    mailinglist: Option[Mailinglist],
+    success: Boolean = true,
+    messages: Seq[String] = Nil
+) extends JsonResponse
+
+object ListUpdateResponse {
+  implicit val fmt = Json.format[ListUpdateResponse]
 }

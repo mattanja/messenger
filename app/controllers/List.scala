@@ -79,26 +79,32 @@ object List extends Controller with Secured {
    */
   def update(email: String) = IsAuthenticated { username =>
     implicit request =>
+    try {
       models.User.findByEmail(username).map { user =>
-        // JSON
-        request.body.asJson.map { json =>
-          json.validate(ListUpdateViewModel.fmt).map { m =>
-            m.addMembers.map { memberEmail =>
-              // Validate member
-              MailinglistMembership.create(
-                m.email,
-                models.User.findByEmail(memberEmail) getOrElse(throw new Exception("No user with this email found: " + memberEmail))
-              )
+        models.Mailinglist.findByEmailWithUsers(email).map { currentList =>
+          // JSON
+          request.body.asJson.map { json =>
+            json.validate(ListUpdateViewModel.fmt).map { m =>
+              m.addMembers.map { memberEmail =>
+                // Validate member
+                MailinglistMembership.create(
+                  m.email,
+                  models.User.findByEmail(memberEmail) getOrElse(throw new Exception("No user with this email found: " + memberEmail))
+                )
+              }
+              m.removeMembers.map { member =>
+                MailinglistMembership.delete(m.email, member)
+              }
+              Ok(Json.toJson(new ListUpdateResponse(models.Mailinglist.findByEmailWithUsers(email))))
+            }.recoverTotal {
+              e => BadRequest(Json.toJson(new ListUpdateResponse(Option.empty, false, Seq(e.toString()))))
             }
-            m.removeMembers.map { member =>
-              MailinglistMembership.delete(m.email, member)
-            }
-            Ok(Json.toJson(new ListUpdateResponse(models.Mailinglist.findByEmailWithUsers(email))))
-          }.recoverTotal {
-            e => BadRequest(Json.toJson(new ListUpdateResponse(Option.empty, false, Seq(e.toString()))))
-          }
-        }.getOrElse(BadRequest("no json"))
-      }.getOrElse(BadRequest("List not found"))
+          }.getOrElse(BadRequest(Json.toJson(new ListUpdateResponse(Option.empty, false, Seq("Invalid JSON data")))))
+        }.getOrElse(BadRequest(Json.toJson(new ListUpdateResponse(Option.empty, false, Seq("List not found")))))
+      }.getOrElse(BadRequest(Json.toJson(new ListUpdateResponse(Option.empty, false, Seq("User not found")))))
+    } catch {
+      case e: Exception => BadRequest(Json.toJson(new ListUpdateResponse(Option.empty, false, Seq(e.toString))))
+    }
   }
 
   // def update(email: String) = Action(parse.json) { request => {

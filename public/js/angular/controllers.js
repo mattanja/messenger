@@ -50,7 +50,13 @@ angular.module('messengerApp.controllers', [])
 			}
 		}, function(response) {
 			// Error
-			notify.error("Error removing member");
+			var listUpdateResponse = response.data;
+			if (listUpdateResponse) {
+				notify.error("Error removing member " + removeEmail + ": " + listUpdateResponse.messages.join("\n<br />"));
+			} else {
+				// Response can not be processed
+				notify.error("Error removing member");
+			}
 		});
 	}
 
@@ -68,7 +74,13 @@ angular.module('messengerApp.controllers', [])
 				notify.error("Error adding member " + addEmail + ": " + listUpdateResponse.messages.join("\n<br />"));
 			}
 		}, function(response) {
-			notify.error("Error adding member " + addEmail);
+			// Error
+			var listUpdateResponse = response.data;
+			if (listUpdateResponse) {
+				notify.error("Error adding member " + addEmail + ": " + listUpdateResponse.messages.join("\n<br />"));
+			} else {
+				notify.error("Error adding member " + addEmail);
+			}
 		});
 	}
 })

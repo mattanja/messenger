@@ -24,7 +24,7 @@ object Global extends GlobalSettings {
 
   override def onStop(app: Application) {
     Logger.trace("Stopping application...")
-  
+
     Logger.trace("Stopping SMTP-server...")
     smtpServer.stop()
   }

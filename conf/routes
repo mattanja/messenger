@@ -5,6 +5,9 @@
 # Home page
 GET      /                     controllers.Application.index
 
+# Swagger
+GET      /api-docs.json        controllers.ApiHelpController.getResources
+
 # Authentication
 GET      /login                controllers.Application.login
 POST     /login                controllers.Application.authenticate

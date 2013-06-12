@@ -10,6 +10,9 @@ import models._
 import models.JsonModel._
 //import org.omg.CosNaming.NamingContextPackage.NotFound
 
+import com.wordnik.swagger.annotations._
+
+@Api(value = "/list", listingPath = "/api-docs.{format}/list", description = "List operations")
 object List extends Controller with Secured {
 
   /**
@@ -77,6 +80,11 @@ object List extends Controller with Secured {
    *
    * @param email the email-address of the list to be updated
    */
+  @ApiOperation(value = "Update list", notes = "Returns the new list values", responseClass = "ListUpdateResponse", httpMethod = "POST")
+  @ApiErrors(Array(
+    new ApiError(code = 400, reason = "Invalid ID supplied"),
+    new ApiError(code = 404, reason = "Pet not found")
+  ))
   def update(email: String) = IsAuthenticated { username =>
     implicit request =>
     try {

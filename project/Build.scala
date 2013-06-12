@@ -16,10 +16,16 @@ object ApplicationBuild extends Build {
     "com.google.guava" % "guava" % "14.0.1",
     //"com.typesafe.slick" %% "slick" % "1.0.0",
     "mysql" % "mysql-connector-java" % "5.1.21", // MySQL for cloudbees deployment
-    anorm)
+    anorm,
+    // Swagger API docs https://github.com/wordnik/swagger-core/tree/master/modules/swagger-play2
+    "com.wordnik" %% "swagger-play2" % "1.2.1-SNAPSHOT"
+  )
 
-  val main = play.Project(appName, appVersion, appDependencies).settings(
+  val main = play.Project(appName, appVersion, appDependencies).settings(defaultScalaSettings:_*).settings(
     // write test reports and to console
-    testOptions in Test += Tests.Argument("junitxml", "console")
+    testOptions in Test += Tests.Argument("junitxml", "console"),
+
+    // Sonatype for swagger
+    resolvers += "Sonatype for swagger repository" at "https://oss.sonatype.org/content/repositories/snapshots/"
   )
 }

@@ -8,6 +8,9 @@ import play.api.libs.concurrent._
 import play.api.libs.json._
 import models._
 import org.omg.CosNaming.NamingContextPackage.NotFound
+import com.wordnik.swagger.annotations.ApiOperation
+import com.wordnik.swagger.annotations.ApiErrors
+import com.wordnik.swagger.annotations.ApiError
 
 object User extends Controller with Secured {
 
@@ -37,7 +40,18 @@ object User extends Controller with Secured {
       }.getOrElse(Forbidden("Must be logged in"))
   }
 
-  def newUser() = TODO
+  @ApiOperation(value = "Add new user", notes = "Returns the new users details", responseClass = "User", httpMethod = "POST")
+  @ApiErrors(Array(
+    new ApiError(code = 400, reason = "Email already existing"),
+    new ApiError(code = 400, reason = "Invalid data")))
+  def newUser() = IsAuthenticated { username =>
+    implicit request =>
+    try {
+      BadRequest("test")
+    } catch {
+      case e: Exception => BadRequest(e.toString())
+    }
+  }
 
   /**
    * Update user data and lists.

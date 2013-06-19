@@ -17,6 +17,16 @@
     	}
     </ul>
 
+
+    <div ng-controller="UserController">
+
+        <form ng-submit="newUser()" name="newUserForm" class="form-inline">
+            <input ng-model="newUserEmail" type="email" name="input" placeholder="add new user email address" email-valid />
+            <!-- <span ng-show="addMemberForm.input.$error.required" class="help-block">Required</span> -->
+            <input class="btn" type="submit" value="add" />
+        </form>
+    </div>
+
     @*
 	<h2>Create new list</h2>
 

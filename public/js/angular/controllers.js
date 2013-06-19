@@ -1,7 +1,7 @@
 angular.module('messengerApp.controllers', [])
 
 // NotificationService
-.factory('notify', ['$window', function(win) {
+.factory('notify', function() {
 
     return {
 		error: function(msg) {
@@ -16,7 +16,7 @@ angular.module('messengerApp.controllers', [])
 			toastr.info(msg);
 		},
     };
-}])
+})
 
 // ListController
 .controller('ListController', function($scope, $http, notify) {
@@ -80,6 +80,29 @@ angular.module('messengerApp.controllers', [])
 				notify.error("Error adding member " + addEmail + ": " + listUpdateResponse.messages.join("\n<br />"));
 			} else {
 				notify.error("Error adding member " + addEmail);
+			}
+		});
+	}
+})
+
+// UserController
+.controller('UserController', function($scope, $http, notify) {
+	// Initial data & members
+	$scope.newUserEmail = "";
+
+	$scope.newUser = function() {
+		var data = { email: $scope.newUserEmail, };
+		$http.post('/user/newUser', data).then(function(response) {
+			// Success
+			var responseData = response.data;
+			notify.info("success response code");
+		}, function(response) {
+			// Error
+			var responseData = response.data;
+			if (responseData) {
+				notify.error("2: Error adding new user.");
+			} else {
+				notify.error("3: Error adding new user.");
 			}
 		});
 	}

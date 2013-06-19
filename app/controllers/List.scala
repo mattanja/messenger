@@ -12,7 +12,7 @@ import models.JsonModel._
 
 import com.wordnik.swagger.annotations._
 
-@Api(value = "/list", listingPath = "/api-docs.{format}/list", description = "List operations")
+@Api(basePath="http://localhost:9000", value = "/list", listingPath = "/api-docs.{format}/list", description = "List operations")
 object List extends Controller with Secured {
 
   /**

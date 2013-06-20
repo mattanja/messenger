@@ -63,10 +63,16 @@
                         @if(user != null) {
                         	<a href="@routes.User.detail(user.email)" class="userinfo"><i class="icon-user icon-white"></i> @user.name <span>(@user.email)</span></a>
                            	<a class="btn logout" href="@routes.Application.logout()">Logout</a>
+
+                            <!-- Fake (hidden) form to avoid unneccessary form pre-population. -->
+                            <form style="display: none;">
+                                <input class="span2" type="email" name="email" placeholder="Email" id="email">
+                                <input class="span2" type="password" name="password" id="password" placeholder="Password">
+                            </form>
                         } else {
 	                        @helper.form(routes.Application.authenticate, 'class -> "form-inline") {
-	                        	<input class="span2" type="email" name="email" placeholder="Email" id="email">
-	                            <input class="span2" type="password" name="password" id="password" placeholder="Password">
+	                        	<input class="span2" type="email" name="email" placeholder="Email" id="email" />
+	                            <input class="span2" type="password" name="password" id="password" placeholder="Password" />
 	                            <button type="submit" class="btn">Sign in</button>
 	                        }
                         }

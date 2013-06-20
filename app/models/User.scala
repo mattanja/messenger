@@ -11,7 +11,12 @@ import play.api.libs.json._
 case class User(
   email: String,
   name: String,
-  password: String)
+  password: String
+) {
+  if (email.length < 1) {
+    throw new Exception("email must be set")
+  }
+}
 
 /**
  * This uses ScalaAnorm, packaged with play! framework 2
@@ -28,10 +33,9 @@ object User {
    */
   val simple = {
     get[String]("user.email") ~
-      get[String]("user.name") ~
-      get[String]("user.password") map {
-        case email ~ name ~ password => User(email, name, password)
-      }
+    get[String]("user.name") map {
+      case email ~ name => User(email, name, "")
+    }
   }
 
   // -- Queries
@@ -58,23 +62,30 @@ object User {
   def authenticate(email: String, password: String): Option[User] = {
     DB.withConnection { implicit connection =>
       SQL("select * from user where	email = {email} and password = {password}").on(
-          'email -> email,
-          'password -> password).as(User.simple.singleOpt)
+        'email -> email,
+        'password -> password).as(User.simple.singleOpt)
     }
   }
 
-   def create(user: User): Int = {
+  def create(user: User): Int = {
     DB.withConnection { implicit connection =>
       try {
         SQL("INSERT INTO user values ({email}, {name}, {password})").on(
           'email -> user.email,
           'name -> user.name,
           'password -> user.password).executeUpdate()
-
       } catch {
         case e: Exception => Logger.error("Could not create new user\n" + e); 0
       }
-   }
+    }
   }
 
+  def insert(user: User): Int = {
+    DB.withConnection { implicit connection =>
+      SQL("INSERT INTO user values ({email}, {name}, {password})").on(
+        'email -> user.email,
+        'name -> user.name,
+        'password -> user.password).executeUpdate()
+    }
+  }
 }

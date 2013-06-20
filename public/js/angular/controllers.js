@@ -88,13 +88,25 @@ angular.module('messengerApp.controllers', [])
 // UserController
 .controller('UserController', function($scope, $http, notify) {
 	// Initial data & members
-	$scope.newUserEmail = "";
+	$scope.newUser = { email: "", name: "", password: "" };
 
-	$scope.newUser = function() {
-		var data = { email: $scope.newUserEmail, };
+	// Async get of user data
+	$http.get('/users').then(function(res) {
+		// Success
+		$scope.users = res.data;
+
+		notify.info("User data loaded...");
+	}, function(response) {
+		// Error
+		$scope.users = [];
+	});
+
+	$scope.addNewUser = function() {
+		var data = $scope.newUser;
 		$http.post('/user/newUser', data).then(function(response) {
 			// Success
 			var responseData = response.data;
+			$scope.newUser = { email: "", name: "", password: "" };
 			notify.info("success response code");
 		}, function(response) {
 			// Error
@@ -105,6 +117,36 @@ angular.module('messengerApp.controllers', [])
 				notify.error("3: Error adding new user.");
 			}
 		});
+	}
+	
+	$scope.deleteUser = function(deleteUserEmail) {
+		var data = {};
+		$http.post('/user/delete/' + deleteUserEmail, data).then(function(response) {
+			// Success
+			var responseData = response.data;
+			notify.info("user deleted");
+		}, function(response) {
+			// Error
+			var responseData = response.data;
+			if (responseData) {
+				notify.error("2: Error deleting user.");
+			} else {
+				notify.error("3: Error deleting user.");
+			}
+		});
+	}
+
+	$scope.newUserGeneratePassword = function(event) {
+		event.preventDefault();
+
+		var length = 8,
+        charset = "abcdefghijklnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+        retVal = "";
+	    for (var i = 0, n = charset.length; i < length; ++i) {
+	        retVal += charset.charAt(Math.floor(Math.random() * n));
+	    }
+		$scope.newUser.password = retVal;
+		$scope.newUser.generatedPassword = $scope.newUser.password;
 	}
 })
 

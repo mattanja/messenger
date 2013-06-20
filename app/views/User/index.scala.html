@@ -1,29 +1,48 @@
-@(user: User, users: Seq[User])
+@(user: User)
 
 @import helper._
 @import helper.twitterBootstrap._
 
 @main("Users", user) {
-
-    <h1>@users.size user(s) </h1>
-
-    <ul>
-    	@users.map { u =>
-    		<li><a href="@routes.User.detail(u.email)">@u</a>
-    			@form(routes.User.delete(u.email)) {
-                    <input class="btn" type="submit" value="Delete" />
-                }
-    		</li>
-    	}
-    </ul>
-
-
     <div ng-controller="UserController">
-
-        <form ng-submit="newUser()" name="newUserForm" class="form-inline">
-            <input ng-model="newUserEmail" type="email" name="input" placeholder="add new user email address" email-valid />
-            <!-- <span ng-show="addMemberForm.input.$error.required" class="help-block">Required</span> -->
-            <input class="btn" type="submit" value="add" />
+    	<h1>Users</h1>
+    	
+		<ul>
+			<li ng-repeat="user in users">
+				<span>{{user.name}} ({{user.email}})</span>
+				<span class="btn" ng-click="deleteUser('{{user.email}}')">Delete user</span>
+			</li>
+		</ul>
+    
+        <form autocomplete="off" ng-submit="addNewUser()" name="newUserForm" class="form-horizontal">
+            <fieldset>
+            <legend>New user</legend>
+            <div class="control-group">
+                <label class="control-label" for="name">Name</label>
+                <div class="controls">
+                    <input ng-model="newUser.name" type="text" name="name" placeholder="add name of new user" required />
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="password">Password</label>
+                <div class="controls">
+                    <input ng-model="newUser.password" type="password" name="password" placeholder="add password of new user" required />
+                    <button type="button" ng-click="newUserGeneratePassword($event)" class="btn">Generate new password</button>
+                    <span>{{newUser.generatedPassword}}</span>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="email">Email</label>
+                <div class="controls">
+                    <input ng-model="newUser.email" type="email" name="email" placeholder="add new user email address" required email-valid />
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="controls">
+                    <input class="btn" type="submit" value="add" />
+                </div>
+            </div>
+            </fieldset>
         </form>
     </div>
 

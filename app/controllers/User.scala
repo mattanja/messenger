@@ -20,8 +20,8 @@ object User extends Controller with Secured {
         models.User.findByEmail(username).map { user =>
           Promise.pure(
             render {
-              case Accepts.Html() => Ok(views.html.User.index(user, models.User.findAll))
-              case Accepts.Json() => Ok(Json.toJson(""))
+              case Accepts.Html() => Ok(views.html.User.index(user)) //, models.User.findAll))
+              case Accepts.Json() => Ok(Json.toJson(models.User.findAll))
               //Ok(views.html.User.index() models.User.findAll
             })
         }.getOrElse(Promise.pure(Forbidden))
@@ -47,7 +47,17 @@ object User extends Controller with Secured {
   def newUser() = IsAuthenticated { username =>
     implicit request =>
     try {
-      BadRequest("test")
+      request.body.asJson.map { json =>
+        json.validate(models.User.fmt).map { m =>
+          if (models.User.insert(m) == 1) {
+        	Ok(Json.toJson(m))
+          } else {
+            BadRequest("Error creating user")
+          }
+        }.recoverTotal {
+          e => BadRequest("json error")
+        }
+      }.getOrElse(BadRequest("second json"))
     } catch {
       case e: Exception => BadRequest(e.toString())
     }

@@ -88,4 +88,10 @@ object User {
         'password -> user.password).executeUpdate()
     }
   }
+  
+  def delete(email: String) = {
+    DB.withConnection { implicit c =>
+      SQL("delete from user where email = {email}").on('email -> email).executeUpdate()
+    }
+  }
 }

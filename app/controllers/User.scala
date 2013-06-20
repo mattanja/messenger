@@ -71,6 +71,13 @@ object User extends Controller with Secured {
   /**
    * Delete user.
    */
-  def delete(email: String) = TODO
+  def delete(email: String) = IsAuthenticated { username =>
+  	_ => {
+  	  models.User.findByEmail(email).map { userToDelete =>
+  	    models.User.delete(userToDelete.email);
+        Ok(Json.toJson(userToDelete))
+      }.getOrElse(BadRequest("User not found"))
+  	}
+  }
 
 }

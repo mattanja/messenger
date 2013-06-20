@@ -5,9 +5,6 @@
 # Home page
 GET      /                     controllers.Application.index
 
-# Swagger
-GET      /api-docs.json        controllers.ApiHelpController.getResources
-
 # Authentication
 GET      /login                controllers.Application.login
 POST     /login                controllers.Application.authenticate
@@ -26,6 +23,9 @@ POST     /user/newUser         controllers.User.newUser
 GET      /user/:email          controllers.User.detail(email: String)
 POST     /user/update/:email   controllers.User.update(email: String)
 POST     /user/delete/:email   controllers.User.delete(email: String)
+
+# Swagger
+GET      /api-docs.json        controllers.ApiHelpController.getResources
 
 # Map static resources from the /public folder to the /assets URL path
 GET      /assets/*file         controllers.Assets.at(path="/public", file)

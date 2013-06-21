@@ -6,14 +6,14 @@
 @main("Users", user) {
     <div ng-controller="UserController">
     	<h1>Users</h1>
-    	
+
 		<ul>
-			<li ng-repeat="user in users">
-				<span>{{user.name}} ({{user.email}})</span>
-				<span class="btn" ng-click="deleteUser('{{user.email}}')">Delete user</span>
+			<li ng-repeat="user in users" ng-animate="{enter: 'animate-enter', leave: 'animate-leave'}">
+				<span><a href="/user/{{user.email}}">{{user.name}} ({{user.email}})</a></span>
+				<span class="btn" ng-click="deleteUser(user)">Delete user</span>
 			</li>
 		</ul>
-    
+
         <form autocomplete="off" ng-submit="addNewUser()" name="newUserForm" class="form-horizontal">
             <fieldset>
             <legend>New user</legend>
@@ -45,18 +45,4 @@
             </fieldset>
         </form>
     </div>
-
-    @*
-	<h2>Create new list</h2>
-
-	@listForm.globalErrors.map { error =>
-		<div>@error</div>
-	}
-
-	@form(routes.List.newList) {
-		@inputText(listForm("email"))
-
-		<input class="btn" type="submit" value="Create" />
-	}
-	*@
 }

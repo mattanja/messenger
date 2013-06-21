@@ -42,7 +42,7 @@ object User extends Controller with Secured {
 
   @ApiOperation(value = "Add new user", notes = "Returns the new users details", responseClass = "User", httpMethod = "POST")
   @ApiErrors(Array(
-    new ApiError(code = 400, reason = "Email already existing"),
+    new ApiError(code = 400, reason = "Email already exists"),
     new ApiError(code = 400, reason = "Invalid data")))
   def newUser() = IsAuthenticated { username =>
     implicit request =>
@@ -50,12 +50,12 @@ object User extends Controller with Secured {
       request.body.asJson.map { json =>
         json.validate(models.User.fmt).map { m =>
           if (models.User.insert(m) == 1) {
-        	Ok(Json.toJson(m))
+            Ok(Json.toJson(m))
           } else {
             BadRequest("Error creating user")
           }
         }.recoverTotal {
-          e => BadRequest("json error")
+          e => BadRequest(Json.toJson(JsError.toFlatJson(e)))
         }
       }.getOrElse(BadRequest("second json"))
     } catch {

@@ -106,6 +106,7 @@ angular.module('messengerApp.controllers', [])
 		$http.post('/user/newUser', data).then(function(response) {
 			// Success
 			var responseData = response.data;
+			$scope.users.push(responseData);
 			$scope.newUser = { email: "", name: "", password: "" };
 			notify.info("success response code");
 		}, function(response) {
@@ -118,12 +119,14 @@ angular.module('messengerApp.controllers', [])
 			}
 		});
 	}
-	
-	$scope.deleteUser = function(deleteUserEmail) {
+
+	$scope.deleteUser = function(user) {
 		var data = {};
-		$http.post('/user/delete/' + deleteUserEmail, data).then(function(response) {
+		$http.post('/user/delete/' + user.email, data).then(function(response) {
 			// Success
 			var responseData = response.data;
+
+			$scope.users.splice( $scope.users.indexOf(user), 1 );
 			notify.info("user deleted");
 		}, function(response) {
 			// Error

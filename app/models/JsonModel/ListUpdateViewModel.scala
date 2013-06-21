@@ -1,11 +1,16 @@
 package models.JsonModel
 
+import com.wordnik.swagger.annotations._
+
+import javax.xml.bind.annotation._
+
 import play.api.libs.json._
 
+@XmlRootElement(name = "ListUpdateViewModel")
 case class ListUpdateViewModel(
-	email: String,
-	addMembers: List[String] = Nil,
-	removeMembers: List[String] = Nil
+	@XmlElement(name = "email")@ApiProperty(value = "List email") email: String,
+	@XmlElement(name = "addMembers") addMembers: List[String] = Nil,
+	@XmlElement(name = "removeMembers") removeMembers: List[String] = Nil
 )
 
 object ListUpdateViewModel {

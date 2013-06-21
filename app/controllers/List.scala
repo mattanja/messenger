@@ -1,3 +1,19 @@
+/**
+ *  Copyright 2013 kernetics
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package controllers
 
 import play.api._
@@ -10,9 +26,11 @@ import models._
 import models.JsonModel._
 //import org.omg.CosNaming.NamingContextPackage.NotFound
 
+import javax.ws.rs.{ QueryParam, PathParam }
+
 import com.wordnik.swagger.annotations._
 
-@Api(basePath="http://localhost:9000", value = "/list", listingPath = "/api-docs.{format}/list", description = "List operations")
+@Api(value = "/list", listingPath = "/api-docs.{format}/list", description = "List operations")
 object List extends Controller with Secured {
 
   /**
@@ -58,7 +76,12 @@ object List extends Controller with Secured {
   /**
    * The list detail view.
    */
-  def detail(email: String) = IsAuthenticated { username =>
+  @ApiOperation(value = "Get list details", notes = "Returns the details of the list", responseClass = "Mailinglist", httpMethod = "GET")
+  @ApiErrors(Array(
+    new ApiError(code = 404, reason = "List not found")
+  ))
+  def detail(
+    @ApiParam(value = "Email of the list")@PathParam("email") email: String) = IsAuthenticated { username =>
     implicit request =>
       Async {
         models.User.findByEmail(username).map { user =>
@@ -80,12 +103,16 @@ object List extends Controller with Secured {
    *
    * @param email the email-address of the list to be updated
    */
-  @ApiOperation(value = "Update list", notes = "Returns the new list values", responseClass = "ListUpdateResponse", httpMethod = "POST")
+  @ApiOperation(value = "Update list", notes = "Returns the new list values", responseClass = "models.JsonModel.ListUpdateResponse", httpMethod = "POST")
   @ApiErrors(Array(
     new ApiError(code = 400, reason = "Invalid ID supplied"),
-    new ApiError(code = 404, reason = "Pet not found")
+    new ApiError(code = 404, reason = "List not found")
   ))
-  def update(email: String) = IsAuthenticated { username =>
+  @ApiParamsImplicit(Array(
+    new ApiParamImplicit(value = "List object with the information to update", required = true, dataType = "models.JsonModel.ListUpdateViewModel", paramType = "body")
+  ))
+  def update(
+    @ApiParam(value = "Email of the list to update")@PathParam("email") email: String) = IsAuthenticated { username =>
     implicit request =>
     try {
       models.User.findByEmail(username).map { user =>

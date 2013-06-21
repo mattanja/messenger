@@ -12,6 +12,11 @@ import com.wordnik.swagger.annotations.ApiOperation
 import com.wordnik.swagger.annotations.ApiErrors
 import com.wordnik.swagger.annotations.ApiError
 
+import javax.ws.rs.{ QueryParam, PathParam }
+
+import com.wordnik.swagger.annotations._
+
+@Api(value = "/user", listingPath = "/api-docs.{format}/user", description = "User operations")
 object User extends Controller with Secured {
 
   def index = IsAuthenticated { username =>
@@ -71,7 +76,12 @@ object User extends Controller with Secured {
   /**
    * Delete user.
    */
-  def delete(email: String) = IsAuthenticated { username =>
+  @ApiOperation(value = "Delete user", notes = "Deletes the specified user", responseClass = "User", httpMethod = "GET")
+  @ApiErrors(Array(
+    new ApiError(code = 404, reason = "User not found")
+  ))
+  def delete(
+    @ApiParam(value = "Email of the user to delete")@PathParam("email") email: String) = IsAuthenticated { username =>
   	_ => {
   	  models.User.findByEmail(email).map { userToDelete =>
   	    models.User.delete(userToDelete.email);

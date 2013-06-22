@@ -18,8 +18,52 @@ angular.module('messengerApp.controllers', [])
     };
 })
 
-// ListController
-.controller('ListController', function($scope, $http, notify) {
+// MailinglistController
+.controller('MailinglistController', function($scope, $http, notify) {
+
+	$scope.lists = [];
+	$scope.newMailinglist = { email: "", members: [], };
+
+	// Load the data
+	$http.get('/lists').then(function(response) {
+		$scope.lists = response.data;
+		notify.info("Lists data loaded.");
+	}, function(response) {
+		$scope.lists = [];
+		notify.error("Error loading lists data.");
+	});
+
+	$scope.deleteList = function(listemail) {
+		$http.post('/list/delete/' + listemail).then(function(response) {
+			$scope.lists.splice($scope.lists.indexOf(listemail), 1);
+			notify.info("Lists data loaded.");
+		}, function(response) {
+			notify.error("Error loading lists data.");
+		});
+	}
+	
+	$scope.addNewMailinglist = function() {
+		var data = $scope.newMailinglist;
+		$http.post('/list/newList', data).then(function(response) {
+			// Success
+			var responseData = response.data;
+			$scope.lists.push(responseData.email);
+			$scope.newList = { email: "", members: [], };
+			notify.info("success response code");
+		}, function(response) {
+			// Error
+			var responseData = response.data;
+			if (responseData) {
+				notify.error("2: Error adding new user.");
+			} else {
+				notify.error("3: Error adding new user.");
+			}
+		});
+	}
+})
+
+// MailinglistDetailController
+.controller('MailinglistDetailController', function($scope, $http, notify) {
 
 	// Init the objects used in this controller
 	$scope.currentlist = { email: '', members: [], };
@@ -126,7 +170,7 @@ angular.module('messengerApp.controllers', [])
 			// Success
 			var responseData = response.data;
 
-			$scope.users.splice( $scope.users.indexOf(user), 1 );
+			$scope.users.splice( $scope.users.indexOf(user), 1);
 			notify.info("user deleted");
 		}, function(response) {
 			// Error

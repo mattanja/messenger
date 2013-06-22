@@ -4,28 +4,31 @@
 @import helper.twitterBootstrap._
 
 @main("Mailing lists", user) {
+    <div ng-controller="MailinglistController">
+    	<h1>Lists</h1>
 
-    <h1>@lists.size list(s) </h1>
+		<ul>
+			<li ng-repeat="listemail in lists">
+				<span><a href="/list/{{listemail}}">{{listemail}}</a></span>
+				<span class="btn" ng-click="deleteList(listemail)">Delete list</span>
+			</li>
+		</ul>
 
-    <ul>
-    	@lists.map { list =>
-    		<li><a href="@routes.List.detail(list)">@list</a>
-    			@form(routes.List.delete(list)) {
-                    <input class="btn" type="submit" value="Delete" />
-                }
-    		</li>
-    	}
-    </ul>
-
-	<h2>Create new list</h2>
-
-	@listForm.globalErrors.map { error =>
-		<div>@error</div>
-	}
-
-	@form(routes.List.newList) {
-		@inputText(listForm("email"))
-
-		<input class="btn" type="submit" value="Create" />
-	}
+        <form autocomplete="off" ng-submit="addNewMailinglist()" name="newMailinglistForm" class="form-horizontal">
+            <fieldset>
+            <legend>New mailinglist</legend>
+            <div class="control-group">
+                <label class="control-label" for="email">Email</label>
+                <div class="controls">
+                    <input ng-model="newMailinglist.email" type="email" name="email" placeholder="add new mailinglist email address" required email-valid />
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="controls">
+                    <input class="btn" type="submit" value="add" />
+                </div>
+            </div>
+            </fieldset>
+        </form>
+	</div>
 }

@@ -16,7 +16,7 @@ case class Mailinglist(
   members: List[String] = List.empty) extends Mailing {
 
   def add(member: User): Int = add(member.email)
-  
+
   def add(member: String): Int = MailinglistMembership.create(email, member)
 
   override def toString = "Maillist: " + email + " Members: " + members

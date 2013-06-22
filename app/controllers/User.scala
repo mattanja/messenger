@@ -19,6 +19,7 @@ import com.wordnik.swagger.annotations._
 @Api(value = "/user", listingPath = "/api-docs.{format}/user", description = "User operations")
 object User extends Controller with Secured {
 
+  @ApiOperation(value = "Get users", notes = "Returns all users", responseClass = "models.User", multiValueResponse=true, httpMethod = "GET")
   def index = IsAuthenticated { username =>
     implicit request =>
       Async {
@@ -49,6 +50,8 @@ object User extends Controller with Secured {
   @ApiErrors(Array(
     new ApiError(code = 400, reason = "Email already exists"),
     new ApiError(code = 400, reason = "Invalid data")))
+  @ApiParamsImplicit(Array(
+    new ApiParamImplicit(value = "User object", required = true, dataType = "models.User", paramType = "body")))
   def newUser() = IsAuthenticated { username =>
     implicit request =>
     try {

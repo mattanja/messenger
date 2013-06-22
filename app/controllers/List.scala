@@ -39,37 +39,45 @@ object List extends Controller with Secured {
    */
   val listForm = Form("email" -> email)
 
-  /**
-   *
-   */
+  @ApiOperation(value = "Get mailinglists", notes = "Returns all mailinglists", responseClass = "String", multiValueResponse = true, httpMethod = "GET")
   def index = IsAuthenticated { username =>
     implicit request =>
-      models.User.findByEmail(username).map { user =>
-        Ok(views.html.List.index(Mailinglist.findAll, listForm, user))
-      }.getOrElse(Forbidden)
+      Async {
+        models.User.findByEmail(username).map { user =>
+          Promise.pure(
+            render {
+              case Accepts.Html() => Ok(views.html.List.index(Mailinglist.findAll, listForm, user))
+              case Accepts.Json() => Ok(Json.toJson(models.Mailinglist.findAll))
+            })
+        }.getOrElse(Promise.pure(Forbidden))
+      }
   }
 
   /**
    *
    * http://stackoverflow.com/questions/10898719/how-to-handle-exceptions-in-a-playframework-2-async-block-scala
    */
+  @ApiOperation(value = "Create new list", notes = "Creates a new mailing list", responseClass = "models.Mailinglist", httpMethod = "GET")
+  @ApiErrors(Array(
+    new ApiError(code = 400, reason = "List with this email address already exists")))
+  @ApiParamsImplicit(Array(
+    new ApiParamImplicit(value = "List object with the email address", required = true, dataType = "models.Mailinglist", paramType = "body")))
   def newList = IsAuthenticated { username =>
     implicit request =>
-      Async {
-        models.User.findByEmail(username).map { user =>
-          listForm.bindFromRequest.fold(
-            errors => Promise.pure(BadRequest(views.html.List.index(Mailinglist.findAll, errors, user))),
-            email => {
-              try {
-                Mailinglist.create(email)
-                Promise.pure(Redirect(routes.List.index))
-              } catch {
-                case e: Exception => {
-                  Promise.pure(BadRequest(views.html.List.index(Mailinglist.findAll, listForm.withGlobalError(e.toString()), user)))
-                }
-              }
-            })
-        }.getOrElse(Promise.pure(Forbidden))
+      try {
+        request.body.asJson.map { json =>
+          json.validate(models.Mailinglist.fmt).map { m =>
+            if (models.Mailinglist.create(m.email) == 1) {
+              Ok(Json.toJson(m))
+            } else {
+              BadRequest("Error creating new list")
+            }
+          }.recoverTotal {
+            e => BadRequest(Json.toJson(JsError.toFlatJson(e)))
+          }
+        }.getOrElse(BadRequest("Invalid data"))
+      } catch {
+        case e: Exception => BadRequest(e.toString())
       }
   }
 
@@ -78,8 +86,7 @@ object List extends Controller with Secured {
    */
   @ApiOperation(value = "Get list details", notes = "Returns the details of the list", responseClass = "Mailinglist", httpMethod = "GET")
   @ApiErrors(Array(
-    new ApiError(code = 404, reason = "List not found")
-  ))
+    new ApiError(code = 404, reason = "List not found")))
   def detail(
     @ApiParam(value = "Email of the list")@PathParam("email") email: String) = IsAuthenticated { username =>
     implicit request =>
@@ -96,7 +103,8 @@ object List extends Controller with Secured {
       }
   }
 
-  /** Update the content of a list
+  /**
+   * Update the content of a list
    *
    * The request expects an object of type ListUpdateViewModel.
    * Returns ListUpdateResponse
@@ -106,78 +114,49 @@ object List extends Controller with Secured {
   @ApiOperation(value = "Update list", notes = "Returns the new list values", responseClass = "models.JsonModel.ListUpdateResponse", httpMethod = "POST")
   @ApiErrors(Array(
     new ApiError(code = 400, reason = "Invalid ID supplied"),
-    new ApiError(code = 404, reason = "List not found")
-  ))
+    new ApiError(code = 404, reason = "List not found")))
   @ApiParamsImplicit(Array(
-    new ApiParamImplicit(value = "List object with the information to update", required = true, dataType = "models.JsonModel.ListUpdateViewModel", paramType = "body")
-  ))
+    new ApiParamImplicit(value = "List object with the information to update", required = true, dataType = "models.JsonModel.ListUpdateViewModel", paramType = "body")))
   def update(
     @ApiParam(value = "Email of the list to update")@PathParam("email") email: String) = IsAuthenticated { username =>
     implicit request =>
-    try {
-      models.User.findByEmail(username).map { user =>
-        models.Mailinglist.findByEmailWithUsers(email).map { currentList =>
-          // JSON
-          request.body.asJson.map { json =>
-            json.validate(ListUpdateViewModel.fmt).map { m =>
-              m.addMembers.map { memberEmail =>
-                // Validate member
-                MailinglistMembership.create(
-                  m.email,
-                  models.User.findByEmail(memberEmail) getOrElse(throw new Exception("No user with this email found: " + memberEmail))
-                )
+      try {
+        models.User.findByEmail(username).map { user =>
+          models.Mailinglist.findByEmailWithUsers(email).map { currentList =>
+            // JSON
+            request.body.asJson.map { json =>
+              json.validate(ListUpdateViewModel.fmt).map { m =>
+                m.addMembers.map { memberEmail =>
+                  // Validate member
+                  MailinglistMembership.create(
+                    m.email,
+                    models.User.findByEmail(memberEmail) getOrElse (throw new Exception("No user with this email found: " + memberEmail)))
+                }
+                m.removeMembers.map { member =>
+                  MailinglistMembership.delete(m.email, member)
+                }
+                Ok(Json.toJson(new ListUpdateResponse(models.Mailinglist.findByEmailWithUsers(email))))
+              }.recoverTotal {
+                e => BadRequest(Json.toJson(new ListUpdateResponse(Option.empty, false, Seq(e.toString()))))
               }
-              m.removeMembers.map { member =>
-                MailinglistMembership.delete(m.email, member)
-              }
-              Ok(Json.toJson(new ListUpdateResponse(models.Mailinglist.findByEmailWithUsers(email))))
-            }.recoverTotal {
-              e => BadRequest(Json.toJson(new ListUpdateResponse(Option.empty, false, Seq(e.toString()))))
-            }
-          }.getOrElse(BadRequest(Json.toJson(new ListUpdateResponse(Option.empty, false, Seq("Invalid JSON data")))))
-        }.getOrElse(BadRequest(Json.toJson(new ListUpdateResponse(Option.empty, false, Seq("List not found")))))
-      }.getOrElse(BadRequest(Json.toJson(new ListUpdateResponse(Option.empty, false, Seq("User not found")))))
-    } catch {
-      case e: Exception => BadRequest(Json.toJson(new ListUpdateResponse(Option.empty, false, Seq(e.toString))))
+            }.getOrElse(BadRequest(Json.toJson(new ListUpdateResponse(Option.empty, false, Seq("Invalid JSON data")))))
+          }.getOrElse(BadRequest(Json.toJson(new ListUpdateResponse(Option.empty, false, Seq("List not found")))))
+        }.getOrElse(BadRequest(Json.toJson(new ListUpdateResponse(Option.empty, false, Seq("User not found")))))
+      } catch {
+        case e: Exception => BadRequest(Json.toJson(new ListUpdateResponse(Option.empty, false, Seq(e.toString))))
+      }
+  }
+
+  @ApiOperation(value = "Delete mailing list", notes = "Deletes the specified mailing list", responseClass = "models.Mailinglist", httpMethod = "GET")
+  @ApiErrors(Array(
+    new ApiError(code = 404, reason = "List not found")))
+  def delete(
+    @ApiParam(value = "Email of the mailing list to delete")@PathParam("email") email: String) = IsAuthenticated { username =>
+    _ => {
+      models.Mailinglist.findByEmailWithUsers(email).map { listToDelete =>
+        models.Mailinglist.delete(listToDelete.email)
+        Ok(Json.toJson(listToDelete))
+      }.getOrElse(BadRequest("List not found"))
     }
-  }
-
-  // def update(email: String) = Action(parse.json) { request => {
-  //   request.body.validate(ListUpdateViewModel.fmt).map { m =>
-  //     Ok("Test: " + m.email)
-  //   }.recoverTotal { error =>
-  //     BadRequest("Detected error: " + JsError.toFlatJson(error))
-  //   }
-  // }}
-
-  def addMember() = IsAuthenticated { username =>
-    implicit request =>
-      Async {
-        models.User.findByEmail(username).map { user =>
-          // Authenticated async action
-          Promise.pure(Ok)
-        }.getOrElse(Promise.pure(Forbidden))
-      }
-  }
-
-  def removeMember(mailinglist_email: String, user_email: String) = IsAuthenticated { username =>
-    implicit request =>
-      Async {
-        models.User.findByEmail(username).map { user =>
-          // Authenticated async action
-
-          //MailinglistMembership.delete(mailinglist_email, user_email)
-
-          Promise.pure(Ok)
-        }.getOrElse(Promise.pure(Forbidden))
-      }
-  }
-
-  /**
-   *
-   */
-  def delete(email: String) = Action {
-    Mailinglist.delete(email)
-    Redirect(routes.List.index)
   }
 }

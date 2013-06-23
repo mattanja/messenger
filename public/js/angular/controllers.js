@@ -41,14 +41,14 @@ angular.module('messengerApp.controllers', [])
 			notify.error("Error loading lists data.");
 		});
 	}
-	
+
 	$scope.addNewMailinglist = function() {
 		var data = $scope.newMailinglist;
 		$http.post('/list/newList', data).then(function(response) {
 			// Success
 			var responseData = response.data;
 			$scope.lists.push(responseData.email);
-			$scope.newList = { email: "", members: [], };
+			$scope.newMailinglist = { email: "", members: [], };
 			notify.info("success response code");
 		}, function(response) {
 			// Error

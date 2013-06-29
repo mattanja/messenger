@@ -93,4 +93,16 @@ object User extends Controller with Secured {
   	}
   }
 
+  def getUserTypeahead = IsAuthenticated { username =>
+    implicit request =>
+    try {
+      request.body.asJson.map { json =>
+        val typeahead = (json \ "typeahead").as[String]
+        Ok(Json.toJson(models.User.findByTypeahead(typeahead)))
+      }.getOrElse(BadRequest("second json"))
+    } catch {
+      case e: Exception => BadRequest(e.toString())
+    }
+  }
+
 }

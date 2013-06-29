@@ -1,4 +1,4 @@
-angular.module('messengerApp.controllers', [])
+angular.module('messengerApp', ['ui.bootstrap'])
 
 // NotificationService
 .factory('notify', function() {
@@ -79,6 +79,13 @@ angular.module('messengerApp.controllers', [])
 		// Error
 		$scope.currentlist = { email: "ERROR", members: [], };
 	});
+
+	$scope.allUserEmails = ['test@test.test', 'mattanja.kern@gmail.com'];
+	$scope.getUserTypeahead = function(typed) {
+		return $http.post('/user/getUserTypeahead', { typeahead: typed }).then(function(response) {
+			return response.data;
+		})
+	}
 
 	// Remove member from list
 	$scope.removeMember = function(removeEmail) {

@@ -27,7 +27,7 @@
 		<h3>Add new member</h3>
 
 		<form ng-submit="addMember()" name="addMemberForm" class="form-inline">
-			<input ng-model="newMemberemail" type="email" name="input" placeholder="add new member email address" email-valid />
+			<input ng-model="newMemberemail" type="text" placeholder="add new member email address" email-valid typeahead="suggestion for suggestion in getUserTypeahead($viewValue)" />
 			<!-- <span ng-show="addMemberForm.input.$error.required" class="help-block">Required</span> -->
 			<input class="btn" type="submit" value="add" />
 		</form>

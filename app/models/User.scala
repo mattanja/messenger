@@ -51,6 +51,18 @@ object User {
   }
 
   /**
+   * Retrieve existing email-addresses begining with the typeahead string.
+   * @type {[type]}
+   */
+  def findByTypeahead(typeahead: String): List[String] = {
+    val typeaheadParam = typeahead + "%"
+    DB.withConnection { implicit connection =>
+      SQL("select email from user where email LIKE {x}").on(
+        'x -> typeaheadParam).as(get[String]("email")*)
+    }
+  }
+
+  /**
    * Retrieve all users.
    */
   def findAll: Seq[User] = {
@@ -88,7 +100,7 @@ object User {
         'password -> user.password).executeUpdate()
     }
   }
-  
+
   def delete(email: String) = {
     DB.withConnection { implicit c =>
       SQL("delete from user where email = {email}").on('email -> email).executeUpdate()

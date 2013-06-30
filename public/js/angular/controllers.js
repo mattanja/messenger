@@ -80,8 +80,12 @@ angular.module('messengerApp', ['ui.bootstrap'])
 		$scope.currentlist = { email: "ERROR", members: [], };
 	});
 
-	$scope.allUserEmails = ['test@test.test', 'mattanja.kern@gmail.com'];
+	// Typeahead for the textbox adding new users to the list.
 	$scope.getUserTypeahead = function(typed) {
+		if (typed.length < 3) {
+			return [];
+		}
+
 		return $http.post('/user/getUserTypeahead', { typeahead: typed }).then(function(response) {
 			return response.data;
 		})

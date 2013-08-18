@@ -11,11 +11,13 @@ object Global extends GlobalSettings {
   override def onStart(app: Application) {
     Logger.trace("Starting application")
     Logger.trace("Configuration db.default.driver: " + Play.current.configuration.getString("db.default.driver"))
-    Logger.trace("Configuration mail.host: " + Play.current.configuration.getString("smtp.host").getOrElse("INVALID"))
-    val port = Play.current.configuration.getInt("smtp.port").getOrElse(66666)
-    Logger.trace("Configuration mail.host.port: " + port)
+    val port = Play.current.configuration.getInt("mailserver.port").getOrElse(25)
+    Logger.trace("Configuration mailserver.port: " + port)
+
+    // Initial data
     InitialData.insert()
-    //Actor here, with the Messenger Handler
+
+    // Actor here, with the Messenger Handler
     smtpServer = new SMTPServer(new MessengerMessageHandlerFactory)
     smtpServer.setPort(port)
     Logger.trace("Starting SMTP-server on port " + smtpServer.getPort() + "...")
@@ -49,7 +51,5 @@ object InitialData {
         User("mattanja.kern@gmail.com", "Matt", "secret"),
         User("test@test.test", "test", "secret")).foreach(User.create)
     }
-
   }
-
 }

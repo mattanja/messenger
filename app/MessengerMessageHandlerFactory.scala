@@ -1,4 +1,3 @@
-
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
@@ -52,27 +51,27 @@ class MessengerSimpleMessageListener extends SimpleMessageListener {
     //Here send the message to be parsed
     //then creates all the necessary copies,  Another actor
     //then send all the messages
-    
+
     // TODO: Send mail to members of mailinglist with the name of "recipient"
     // val members = MailinglistMembers.findByMailinglist(recipient)
     // foreach member send mail
-//	MailinglistMembership.
+    // MailinglistMembership.
     // Just for testing: Return message to sender
-	val members = Mailinglist.findUsers(recipient)
-	val emailContents = EmailContents(data);
-	members foreach (sendMail(_, from, emailContents)) 
-	data.close()
+  	val members = Mailinglist.findUsers(recipient)
+  	val emailContents = EmailContents(data);
+  	members foreach (sendMail(_, from, emailContents))
+  	data.close()
   }
 
   def sendMail(from: String, to: String, emailContents: EmailContents) {//datatext: InputStream): Unit = {
-
     val email = new SimpleEmail();
     val (host, auth, port) = getProperties
     email.setHostName(host);
     email.setSmtpPort(port);
 
-    if (auth)
+    if (auth) {
       email.setAuthenticator(new DefaultAuthenticator("username", "password"));
+    }
 
     //email.setSSLOnConnect(true);
     email.setFrom(from);
@@ -94,10 +93,9 @@ class MessengerSimpleMessageListener extends SimpleMessageListener {
   }
 
   private def createMailAuthenticator(props: Properties) =
-
-    if (props.getProperty("mail.smtp.auth").toBoolean)
+    if (props.getProperty("mail.smtp.auth").toBoolean) {
       javax.mail.Session.getInstance(props)
-    else
+    } else {
       javax.mail.Session.getInstance(props, new javax.mail.Authenticator() {
         override def getPasswordAuthentication(): PasswordAuthentication = {
           new PasswordAuthentication(
@@ -105,6 +103,5 @@ class MessengerSimpleMessageListener extends SimpleMessageListener {
             Play.current.configuration.getString("mail.smtp.password").get)
         }
       })
-
-  
+    }
 }

@@ -19,37 +19,37 @@ import play.api.libs.ws.WS
  */
 object IntegrationSpec extends Specification{
   sequential
-  
+
    def testServer = TestServer(15155,FakeApplication(additionalConfiguration = inMemoryDatabase()))
-   
+
    "run in a server" in new WithServer(app = FakeApplication(additionalConfiguration = inMemoryDatabase())) {
   await(WS.url("http://localhost:"+port).get).status must equalTo(OK)
 }
-   
-   
+
+
    "app" should { "render the index page" in   running(testServer, HTMLUNIT){
        browser =>{
-          
+
           val home = route(FakeRequest(GET, "/")).get
            status(home) must equalTo(200)
           contentType(home) must beSome
-        
+
       }
     }
    }
-   
-  
-   
+
+
+
   //"run in a browser" in new WithBrowser {
   //browser.goTo("/")
  // browser.$("#title").getTexts().get(0) must equalTo("Hello Guest")
-    
+
  // browser.$("a").click()
-    
+
   //browser.url must equalTo("/")
   //browser.$("#title").getTexts().get(0) must equalTo("Hello Coco")
-//} 
-  
+//}
+
   /*"app" should { "work from within a browser" in   running(testServer, HTMLUNIT) {
        browser =>{
          browser.goTo("http://localhost:15155/login")

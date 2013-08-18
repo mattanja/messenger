@@ -50,6 +50,16 @@ object List extends Controller with Secured {
   }
 
   /**
+   * Detail view (no data).
+   */
+  def detailView(email: String) = IsAuthenticated { username =>
+    implicit request =>
+    models.User.findByEmail(username).map { user =>
+      Ok(views.html.List.detail(user, email))
+    }.getOrElse(Forbidden)
+  }
+
+  /**
    * List of lists (JSON).
    */
   @ApiOperation(value = "Get mailinglists", notes = "Returns all mailinglists", responseClass = "String", multiValueResponse = true, httpMethod = "GET")

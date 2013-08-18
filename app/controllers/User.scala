@@ -30,6 +30,18 @@ object User extends Controller with Secured {
   }
 
   /**
+   * Get the user information.
+   */
+  def detailView(email: String) = IsAuthenticated { username =>
+    _ =>
+      models.User.findByEmail(username).map { user =>
+        models.User.findByEmail(email).map { detailUser =>
+          Ok(views.html.User.detail(user, detailUser))
+        }.getOrElse(play.api.mvc.Results.NotFound("User not found"))
+      }.getOrElse(Forbidden("Must be logged in"))
+  }
+
+  /**
    * List of users (JSON).
    */
   @ApiOperation(value = "Get users", notes = "Returns all users", responseClass = "models.User", multiValueResponse=true, httpMethod = "GET")
@@ -43,18 +55,6 @@ object User extends Controller with Secured {
             })
         }.getOrElse(Promise.pure(Forbidden))
       }
-  }
-
-  /**
-   * Get the user information.
-   */
-  def detail(email: String) = IsAuthenticated { username =>
-    _ =>
-      models.User.findByEmail(username).map { user =>
-        models.User.findByEmail(email).map { detailUser =>
-          Ok(views.html.User.detail(user, detailUser))
-        }.getOrElse(play.api.mvc.Results.NotFound("User not found"))
-      }.getOrElse(Forbidden("Must be logged in"))
   }
 
   @ApiOperation(value = "Add new user", notes = "Returns the new users details", responseClass = "User", httpMethod = "POST")
@@ -81,6 +81,11 @@ object User extends Controller with Secured {
       case e: Exception => BadRequest(e.toString())
     }
   }
+
+  /**
+   * Get the user details (JSON).
+   */
+  def detail(email: String) = TODO
 
   /**
    * Update user data and lists.

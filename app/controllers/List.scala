@@ -39,14 +39,26 @@ object List extends Controller with Secured {
    */
   val listForm = Form("email" -> email)
 
-  @ApiOperation(value = "Get mailinglists", notes = "Returns all mailinglists", responseClass = "String", multiValueResponse = true, httpMethod = "GET")
+  /**
+   * Index view (no data).
+   */
   def index = IsAuthenticated { username =>
+    implicit request =>
+    models.User.findByEmail(username).map { user =>
+      Ok(views.html.List.index(user))
+    }.getOrElse(Forbidden)
+  }
+
+  /**
+   * List of lists (JSON).
+   */
+  @ApiOperation(value = "Get mailinglists", notes = "Returns all mailinglists", responseClass = "String", multiValueResponse = true, httpMethod = "GET")
+  def list = IsAuthenticated { username =>
     implicit request =>
       Async {
         models.User.findByEmail(username).map { user =>
           Promise.pure(
             render {
-              case Accepts.Html() => Ok(views.html.List.index(Mailinglist.findAll, listForm, user))
               case Accepts.Json() => Ok(Json.toJson(models.Mailinglist.findAll))
             })
         }.getOrElse(Promise.pure(Forbidden))
@@ -62,7 +74,7 @@ object List extends Controller with Secured {
     new ApiError(code = 400, reason = "List with this email address already exists")))
   @ApiParamsImplicit(Array(
     new ApiParamImplicit(value = "List object with the email address", required = true, dataType = "models.Mailinglist", paramType = "body")))
-  def newList = IsAuthenticated { username =>
+  def create = IsAuthenticated { username =>
     implicit request =>
       try {
         request.body.asJson.map { json =>

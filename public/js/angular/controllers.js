@@ -25,7 +25,7 @@ angular.module('messengerApp', ['ui.bootstrap'])
 	$scope.newMailinglist = { email: "", members: [], };
 
 	// Load the data
-	$http.get('/lists').then(function(response) {
+	$http.get('/list/list').then(function(response) {
 		$scope.lists = response.data;
 		notify.info("Lists data loaded.");
 	}, function(response) {
@@ -44,7 +44,7 @@ angular.module('messengerApp', ['ui.bootstrap'])
 
 	$scope.addNewMailinglist = function() {
 		var data = $scope.newMailinglist;
-		$http.post('/list/newList', data).then(function(response) {
+		$http.post('/list/create', data).then(function(response) {
 			// Success
 			var responseData = response.data;
 			$scope.lists.push(responseData.email);
@@ -146,7 +146,7 @@ angular.module('messengerApp', ['ui.bootstrap'])
 	$scope.newUser = { email: "", name: "", password: "" };
 
 	// Async get of user data
-	$http.get('/users').then(function(res) {
+	$http.get('/user/list').then(function(res) {
 		// Success
 		$scope.users = res.data;
 
@@ -158,7 +158,7 @@ angular.module('messengerApp', ['ui.bootstrap'])
 
 	$scope.addNewUser = function() {
 		var data = $scope.newUser;
-		$http.post('/user/newUser', data).then(function(response) {
+		$http.post('/user/create', data).then(function(response) {
 			// Success
 			var responseData = response.data;
 			$scope.users.push(responseData);

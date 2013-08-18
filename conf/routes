@@ -16,7 +16,8 @@ GET      /logout               controllers.Application.logout
 # Lists
 GET      /api-docs.json/list   controllers.ApiHelpController.getResource(path = "/api-docs.json/list")
 GET      /lists                controllers.List.index
-POST     /list/newList         controllers.List.newList
+GET      /list/list            controllers.List.list
+POST     /list/create          controllers.List.create
 GET      /list/:email          controllers.List.detail(email: String)
 POST     /list/update/:email   controllers.List.update(email: String)
 POST	 /list/delete/:email   controllers.List.delete(email: String)
@@ -24,7 +25,8 @@ POST	 /list/delete/:email   controllers.List.delete(email: String)
 # Users / Members
 GET      /api-docs.json/user   controllers.ApiHelpController.getResource(path = "/api-docs.json/user")
 GET      /users                controllers.User.index
-POST     /user/newUser         controllers.User.newUser
+GET      /user/list            controllers.User.list
+POST     /user/create          controllers.User.create
 GET      /user/:email          controllers.User.detail(email: String)
 POST     /user/update/:email   controllers.User.update(email: String)
 POST     /user/delete/:email   controllers.User.delete(email: String)

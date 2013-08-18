@@ -19,16 +19,27 @@ import com.wordnik.swagger.annotations._
 @Api(value = "/user", listingPath = "/api-docs.{format}/user", description = "User operations")
 object User extends Controller with Secured {
 
-  @ApiOperation(value = "Get users", notes = "Returns all users", responseClass = "models.User", multiValueResponse=true, httpMethod = "GET")
+  /**
+   * Index view (no data).
+   */
   def index = IsAuthenticated { username =>
+    implicit request =>
+    models.User.findByEmail(username).map { user =>
+      Ok(views.html.User.index(user))
+    }.getOrElse(Forbidden)
+  }
+
+  /**
+   * List of users (JSON).
+   */
+  @ApiOperation(value = "Get users", notes = "Returns all users", responseClass = "models.User", multiValueResponse=true, httpMethod = "GET")
+  def list = IsAuthenticated { username =>
     implicit request =>
       Async {
         models.User.findByEmail(username).map { user =>
           Promise.pure(
             render {
-              case Accepts.Html() => Ok(views.html.User.index(user)) //, models.User.findAll))
               case Accepts.Json() => Ok(Json.toJson(models.User.findAll))
-              //Ok(views.html.User.index() models.User.findAll
             })
         }.getOrElse(Promise.pure(Forbidden))
       }
@@ -52,7 +63,7 @@ object User extends Controller with Secured {
     new ApiError(code = 400, reason = "Invalid data")))
   @ApiParamsImplicit(Array(
     new ApiParamImplicit(value = "User object", required = true, dataType = "models.User", paramType = "body")))
-  def newUser() = IsAuthenticated { username =>
+  def create() = IsAuthenticated { username =>
     implicit request =>
     try {
       request.body.asJson.map { json =>

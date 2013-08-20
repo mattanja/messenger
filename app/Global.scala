@@ -40,16 +40,36 @@ object Global extends GlobalSettings {
  * Initial set of data to be imported
  * in the sample application.
  */
-object InitialData {
+ object InitialData {
 
   def date(str: String) = new java.text.SimpleDateFormat("yyyy-MM-dd").parse(str)
 
   def insert() = {
     if (User.findAll.isEmpty) {
       Logger.trace("Inserting initial user data...")
-      Seq(
-        User("mattanja.kern@gmail.com", "Matt", "secret"),
-        User("test@test.test", "test", "secret")).foreach(User.create)
+      val users = Seq(
+        User("user1@kernetics.de", "User 1", "secret"),
+        User("user2@kernetics.de", "User 2", "secret"),
+        User("user3@kernetics.de", "User 3", "secret"),
+        User("user4@kernetics.de", "User 4", "secret")
+        )
+      users.foreach(User.create)
+
+      if (Mailinglist.findAll.isEmpty) {
+        Logger.trace("Inserting initial list data...")
+        val lists = Seq(
+          Mailinglist("list1@kernetics.de"),
+          Mailinglist("list2@kernetics.de"),
+          Mailinglist("list3@kernetics.de"),
+          Mailinglist("list4@kernetics.de")
+          )
+        lists.foreach(l => Mailinglist.create(l.email))
+
+        if (MailinglistMembership.findAll.isEmpty) {
+          Logger.trace("Inserting initial list membership data...")
+          for (l <- lists; u <- users) { MailinglistMembership.create(l.email, u.email) }
+        }
+      }
     }
   }
 }

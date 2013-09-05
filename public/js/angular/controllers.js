@@ -25,7 +25,7 @@ angular.module('messengerApp', ['ui.bootstrap'])
 	$scope.newMailinglist = { email: "", members: [], };
 
 	// Load the data
-	$http.get('/lists').then(function(response) {
+	$http.get('/data/list/list').then(function(response) {
 		$scope.lists = response.data;
 		notify.info("Lists data loaded.");
 	}, function(response) {
@@ -34,7 +34,7 @@ angular.module('messengerApp', ['ui.bootstrap'])
 	});
 
 	$scope.deleteList = function(listemail) {
-		$http.post('/list/delete/' + listemail).then(function(response) {
+		$http.post('/data/list/delete/' + listemail).then(function(response) {
 			$scope.lists.splice($scope.lists.indexOf(listemail), 1);
 			notify.info("Lists data loaded.");
 		}, function(response) {
@@ -44,7 +44,7 @@ angular.module('messengerApp', ['ui.bootstrap'])
 
 	$scope.addNewMailinglist = function() {
 		var data = $scope.newMailinglist;
-		$http.post('/list/newList', data).then(function(response) {
+		$http.post('/data/list/create', data).then(function(response) {
 			// Success
 			var responseData = response.data;
 			$scope.lists.push(responseData.email);
@@ -65,20 +65,22 @@ angular.module('messengerApp', ['ui.bootstrap'])
 // MailinglistDetailController
 .controller('MailinglistDetailController', function($scope, $http, notify) {
 
-	// Init the objects used in this controller
-	$scope.currentlist = { email: '', members: [], };
-	$scope.newMemberemail = '';
+	$scope.init = function(listid) {
+		// Init the objects used in this controller
+		$scope.currentlist = { email: '', members: [], };
+		$scope.newMemberemail = '';
 
-	// Async get of list data
-	$http.get('#').then(function(res) {
-		// Success
-		$scope.currentlist = res.data;
+		// Async get of list data
+		$http.get('/data/list/detail/' + listid).then(function(res) {
+			// Success
+			$scope.currentlist = res.data;
 
-		notify.info("List data loaded...");
-	}, function(response) {
-		// Error
-		$scope.currentlist = { email: "ERROR", members: [], };
-	});
+			notify.info("List data loaded...");
+		}, function(response) {
+			// Error
+			$scope.currentlist = { email: "ERROR", members: [], };
+		});
+	}
 
 	// Typeahead for the textbox adding new users to the list.
 	$scope.getUserTypeahead = function(typed) {
@@ -86,7 +88,7 @@ angular.module('messengerApp', ['ui.bootstrap'])
 			return [];
 		}
 
-		return $http.post('/user/getUserTypeahead', { typeahead: typed }).then(function(response) {
+		return $http.post('/data/user/getUserTypeahead', { typeahead: typed }).then(function(response) {
 			return response.data;
 		})
 	}
@@ -95,7 +97,7 @@ angular.module('messengerApp', ['ui.bootstrap'])
 	$scope.removeMember = function(removeEmail) {
 		var data = { email: $scope.currentlist.email, addMembers: [], removeMembers: [removeEmail]};
 		// TODO: make route configurable in the template
-		$http.post('/list/update/' + $scope.currentlist.email, data).then(function(response) {
+		$http.post('/data/list/update/' + $scope.currentlist.email, data).then(function(response) {
 			var listUpdateResponse = response.data;
 			if (listUpdateResponse.success) {
 				$scope.currentlist = listUpdateResponse.mailinglist;
@@ -119,7 +121,7 @@ angular.module('messengerApp', ['ui.bootstrap'])
 		var addEmail = $scope.newMemberemail
 		var data = { email: $scope.currentlist.email, addMembers: [addEmail], removeMembers: []};
 		// TODO: make route configurable in the template
-		$http.post('/list/update/' + $scope.currentlist.email, data).then(function(response) {
+		$http.post('/data/list/update/' + $scope.currentlist.email, data).then(function(response) {
 			var listUpdateResponse = response.data;
 			if (listUpdateResponse.success) {
 				$scope.currentlist = listUpdateResponse.mailinglist;
@@ -146,7 +148,7 @@ angular.module('messengerApp', ['ui.bootstrap'])
 	$scope.newUser = { email: "", name: "", password: "" };
 
 	// Async get of user data
-	$http.get('/users').then(function(res) {
+	$http.get('/data/user/list').then(function(res) {
 		// Success
 		$scope.users = res.data;
 
@@ -158,7 +160,7 @@ angular.module('messengerApp', ['ui.bootstrap'])
 
 	$scope.addNewUser = function() {
 		var data = $scope.newUser;
-		$http.post('/user/newUser', data).then(function(response) {
+		$http.post('/data/user/create', data).then(function(response) {
 			// Success
 			var responseData = response.data;
 			$scope.users.push(responseData);
@@ -177,7 +179,7 @@ angular.module('messengerApp', ['ui.bootstrap'])
 
 	$scope.deleteUser = function(user) {
 		var data = {};
-		$http.post('/user/delete/' + user.email, data).then(function(response) {
+		$http.post('/data/user/delete/' + user.email, data).then(function(response) {
 			// Success
 			var responseData = response.data;
 

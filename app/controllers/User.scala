@@ -19,25 +19,20 @@ import com.wordnik.swagger.annotations._
 @Api(value = "/user", listingPath = "/api-docs.{format}/user", description = "User operations")
 object User extends Controller with Secured {
 
-  @ApiOperation(value = "Get users", notes = "Returns all users", responseClass = "models.User", multiValueResponse=true, httpMethod = "GET")
+  /**
+   * Index view (no data).
+   */
   def index = IsAuthenticated { username =>
     implicit request =>
-      Async {
-        models.User.findByEmail(username).map { user =>
-          Promise.pure(
-            render {
-              case Accepts.Html() => Ok(views.html.User.index(user)) //, models.User.findAll))
-              case Accepts.Json() => Ok(Json.toJson(models.User.findAll))
-              //Ok(views.html.User.index() models.User.findAll
-            })
-        }.getOrElse(Promise.pure(Forbidden))
-      }
+    models.User.findByEmail(username).map { user =>
+      Ok(views.html.User.index(user))
+    }.getOrElse(Forbidden)
   }
 
   /**
    * Get the user information.
    */
-  def detail(email: String) = IsAuthenticated { username =>
+  def detailView(email: String) = IsAuthenticated { username =>
     _ =>
       models.User.findByEmail(username).map { user =>
         models.User.findByEmail(email).map { detailUser =>
@@ -46,13 +41,29 @@ object User extends Controller with Secured {
       }.getOrElse(Forbidden("Must be logged in"))
   }
 
+  /**
+   * List of users (JSON).
+   */
+  @ApiOperation(value = "Get users", notes = "Returns all users", responseClass = "models.User", multiValueResponse=true, httpMethod = "GET")
+  def list = IsAuthenticated { username =>
+    implicit request =>
+      Async {
+        models.User.findByEmail(username).map { user =>
+          Promise.pure(
+            render {
+              case Accepts.Json() => Ok(Json.toJson(models.User.findAll))
+            })
+        }.getOrElse(Promise.pure(Forbidden))
+      }
+  }
+
   @ApiOperation(value = "Add new user", notes = "Returns the new users details", responseClass = "User", httpMethod = "POST")
   @ApiErrors(Array(
     new ApiError(code = 400, reason = "Email already exists"),
     new ApiError(code = 400, reason = "Invalid data")))
   @ApiParamsImplicit(Array(
     new ApiParamImplicit(value = "User object", required = true, dataType = "models.User", paramType = "body")))
-  def newUser() = IsAuthenticated { username =>
+  def create() = IsAuthenticated { username =>
     implicit request =>
     try {
       request.body.asJson.map { json =>
@@ -70,6 +81,11 @@ object User extends Controller with Secured {
       case e: Exception => BadRequest(e.toString())
     }
   }
+
+  /**
+   * Get the user details (JSON).
+   */
+  def detail(email: String) = TODO
 
   /**
    * Update user data and lists.

@@ -1,4 +1,4 @@
-package database
+package test.database
 import org.specs2.mutable._
 import play.api.test.Helpers._
 import models.Mailinglist
@@ -12,7 +12,8 @@ class MailingListSpec extends Specification with DBFake{
       Mailinglist.findAll.toSet must beEqualTo(expected)
 
     }
-    "retrieve a empty list if there is no Mainlinglist on data base" in running(fake) {
+
+    "retrieve an empty list if there is no mailinglist in database" in running(fake) {
       Mailinglist.delete("kuhnen@list.com.br")
       Mailinglist.delete("mat@list.com.br")
       Mailinglist.findAll must beEmpty
@@ -50,6 +51,7 @@ class MailingListSpec extends Specification with DBFake{
       val Some(mailinglist) = some
       mailinglist.members.size must beEqualTo(2)
     }
+
     "return Mailinglist with empty members" in running(fake) {
       val some = Mailinglist.findByEmailWithUsers("mat@list.com.br")
       some must beSome
@@ -57,5 +59,4 @@ class MailingListSpec extends Specification with DBFake{
       mailinglist.members must beEmpty
     }
   }
-
 }

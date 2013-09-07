@@ -16,7 +16,7 @@ import javax.ws.rs.{ QueryParam, PathParam }
 
 import com.wordnik.swagger.annotations._
 
-@Api(value = "/user", listingPath = "/api-docs.{format}/user", description = "User operations")
+@Api(value = "/data/user", listingPath = "/api-docs.{format}/user", description = "User operations")
 object User extends Controller with Secured {
 
   /**

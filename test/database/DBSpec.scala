@@ -1,39 +1,33 @@
-package database
+package test.database
 
-import org.specs2.mutable
+import org.specs2.mutable._
 
 import models.User
-import play.api.test.FakeApplication
-import play.api.test.Helpers.inMemoryDatabase
-import play.api.test.Helpers.running
-
-
-//NOt good idea email as unique KEY
+import play.api.test._
+import play.api.test.Helpers._
 
 trait DBFake {
-   val memoryDB = inMemoryDatabase("test")
-  protected def fake = FakeApplication(additionalConfiguration =
-    Map("db.default.url" -> memoryDB.get("db.test.url").get) ++ memoryDB)
-
-
+  val memoryDB = inMemoryDatabase("test")
+  var fake = {
+    new FakeApplication(additionalConfiguration =
+      Map("db.default.url" -> memoryDB.get("db.test.url").get)
+        ++ memoryDB
+        ++ Map("mailserver.port" -> "9025"))
+  }
 }
 
-class UserSpec extends mutable.Specification  with DBFake{ //with BeforeExample  {
-
-
+class UserSpec extends Specification with DBFake {
   "User" should {
-    "be retrieved by id(email)" in
-      running(fake) {
-        val Some(user) = User.findByEmail("kuhnen@terra.com.br")
-        user.name must equalTo("kuhnen")
-        user.email must equalTo("kuhnen@terra.com.br")
-        user.password must equalTo("secret")
+    "be retrieved by id(email)" in running(fake) {
+      val Some(user) = User.findByEmail("kuhnen@terra.com.br")
+      user.name must equalTo("kuhnen")
+      user.email must equalTo("kuhnen@terra.com.br")
+      user.password must equalTo("secret")
     }
 
     "not be retrieved if does not exit" in running(fake) {
       User.findByEmail("not@there.here") must beNone
-
-     }
+    }
 
     "should retrieve all users" in running(fake) {
       val expected = Set("kuhnen", "andre", "matt", "test")
@@ -53,8 +47,8 @@ class UserSpec extends mutable.Specification  with DBFake{ //with BeforeExample 
     }
 
     "should create user if does not exist" in running(fake) {
-     val user = User("new@new.com.br", "new", "secret")
-     User.create(user) must beEqualTo(1)
+      val user = User("new@new.com.br", "new", "secret")
+      User.create(user) must beEqualTo(1)
     }
 
     "should not create if email exist " in running(fake) {
@@ -62,6 +56,5 @@ class UserSpec extends mutable.Specification  with DBFake{ //with BeforeExample 
       User.create(user) must beEqualTo(0)
     }
   }
-
 }
 

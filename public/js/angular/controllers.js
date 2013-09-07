@@ -21,17 +21,19 @@ angular.module('messengerApp', ['ui.bootstrap'])
 // MailinglistController
 .controller('MailinglistController', function($scope, $http, notify) {
 
-	$scope.lists = [];
-	$scope.newMailinglist = { email: "", members: [], };
-
-	// Load the data
-	$http.get('/data/list/list').then(function(response) {
-		$scope.lists = response.data;
-		notify.info("Lists data loaded.");
-	}, function(response) {
+	$scope.init = function() {
 		$scope.lists = [];
-		notify.error("Error loading lists data.");
-	});
+		$scope.newMailinglist = { email: "", members: [], };
+
+		// Load the data
+		$http.get('/data/list/list').then(function(response) {
+			$scope.lists = response.data;
+			notify.info("Lists data loaded.");
+		}, function(response) {
+			$scope.lists = [];
+			notify.error("Error loading lists data.");
+		});
+	}
 
 	$scope.deleteList = function(listemail) {
 		$http.post('/data/list/delete/' + listemail).then(function(response) {

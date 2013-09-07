@@ -1,3 +1,4 @@
+package test.email
 
 import org.specs2.mutable._
 import play.api.test._
@@ -5,11 +6,11 @@ import play.api.test.Helpers._
 import com.typesafe.plugin._
 import play.api.Play.current
 
-import database.DBFake
+import test.database.DBFake
 
 class EmailSpec extends Specification with DBFake {
   "EmailServer" should {
-    "send email" in running(fake) { //new WithApplication {
+    "send email" in running(fake) {
       val email = use[MailerPlugin].email
       email.addFrom("andrekuhnen@gmail.com");
       email.addRecipient("kuhnen@list.com.br");

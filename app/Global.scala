@@ -45,6 +45,8 @@ object Global extends GlobalSettings {
   def date(str: String) = new java.text.SimpleDateFormat("yyyy-MM-dd").parse(str)
 
   def insert() = {
+    
+    // TODO this sql result might become big someday
     if (User.findAll.isEmpty) {
       Logger.trace("Inserting initial user data...")
       val users = Seq(

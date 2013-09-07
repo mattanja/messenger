@@ -30,7 +30,7 @@ import javax.ws.rs.{ QueryParam, PathParam }
 
 import com.wordnik.swagger.annotations._
 
-@Api(value = "/list", listingPath = "/api-docs.{format}/list", description = "List operations")
+@Api(value = "/data/list", listingPath = "/api-docs.{format}/list", description = "List operations")
 object List extends Controller with Secured {
 
   /**

@@ -1,4 +1,4 @@
-package email
+package test.email
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -16,60 +16,53 @@ import play.api.test.Helpers.inMemoryDatabase
 import play.api.test.Helpers.running
 
 object EmailParseSpec extends Specification {
+  "Email received" should {
+    "be parsed" in running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
 
+      val writer = new DefaultMessageWriter()
+      println(Message.message.toString)
+      val out = new ByteArrayOutputStream()
+      writer.writeMessage(Message.message, out)
+      val inputStream = new ByteArrayInputStream(out.toString.getBytes)
+      val Expected = ("This is a message just to "
+        + "say hello.\r\nSo, \"Hello\".")
 
-    "Email received" should {
-      "be parsed" in running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
-
-    val writer = new DefaultMessageWriter()
-    println(Message.message.toString)
-    val out = new ByteArrayOutputStream()
-    writer.writeMessage(Message.message, out)
-    val inputStream = new ByteArrayInputStream(out.toString.getBytes)
-    val Expected = ("This is a message just to "
-                + "say hello.\r\nSo, \"Hello\".")
-
-    Expected must equalTo(EmailContents(inputStream).txtBody)
-      }
+      Expected must equalTo(EmailContents(inputStream).txtBody)
+    }
   }
 
+  object Message {
 
+    // 1) start with an empty message
+    val message = new MessageImpl();
 
+    // 2) set header fields
+    // Date and From are required fields
+    message.setDate(new Date());
+    message.setFrom(AddressBuilder.DEFAULT.parseMailbox("John Doe <jdoe@machine.example>"));
 
-object Message {
-  // 1) start with an empty message
+    // Message-ID should be present
+    message.createMessageId("machine.example");
 
-  val message = new MessageImpl();
+    // set some optional fields
+    message.setTo(AddressBuilder.DEFAULT.parseMailbox("Mary Smith <mary@example.net>"));
+    message.setSubject("Saying Hello");
 
-     // 2) set header fields
+    // 3) set a text body
+    val bodyFactory = new StorageBodyFactory();
+    val body = bodyFactory.textBody("This is a message just to "
+      + "say hello.\r\nSo, \"Hello\".");
 
-        // Date and From are required fields
-        message.setDate(new Date());
-        message.setFrom(AddressBuilder.DEFAULT.parseMailbox("John Doe <jdoe@machine.example>"));
+    // note that setText also sets the Content-Type header field
+    message.setText(body);
 
-        // Message-ID should be present
-        message.createMessageId("machine.example");
+    // 4) print message to standard output
 
-        // set some optional fields
-        message.setTo(AddressBuilder.DEFAULT.parseMailbox("Mary Smith <mary@example.net>"));
-        message.setSubject("Saying Hello");
+    //   val writer = new DefaultMessageWriter();
+    //  writer.writeMessage(message, System.out);
 
-        // 3) set a text body
+    // 5) message is no longer needed and should be disposed of
 
-       val bodyFactory = new StorageBodyFactory();
-       val body = bodyFactory.textBody("This is a message just to "
-                + "say hello.\r\nSo, \"Hello\".");
-
-        // note that setText also sets the Content-Type header field
-        message.setText(body);
-
-        // 4) print message to standard output
-
-     //   val writer = new DefaultMessageWriter();
-      //  writer.writeMessage(message, System.out);
-
-        // 5) message is no longer needed and should be disposed of
-
-      //  message.dispose();
-    }
+    //  message.dispose();
+  }
 }

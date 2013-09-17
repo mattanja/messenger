@@ -11,13 +11,17 @@ import javax.mail.Session
 import javax.mail.Transport
 import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeMessage
+
 import play.api.Logger
 import play.api.Play
+import play.api.Play.current
 import org.apache.commons.mail.SimpleEmail
 import org.apache.commons.mail.DefaultAuthenticator
 import models.EmailContents
 import models.MailinglistMembership
 import models.Mailinglist
+
+import com.typesafe.plugin._
 
 // For a more advanced message handling, check https://code.google.com/p/subetha/source/browse/trunk/src/org/subethamail/core/smtp/SMTPHandler.java
 
@@ -38,10 +42,17 @@ class MessengerSimpleMessageListener extends SimpleMessageListener {
 
   /**
    * Implementation of org.subethamail.smtp.helper.SimpleMessageListener.accept
+   *
+   * Check if mailinglist exists.
    */
   def accept(from: String, recipient: String): Boolean = {
-    Logger.info("Receiving message from: " + from + " for recipient: " + recipient)
-    true
+    if (Mailinglist.findByEmail(recipient).nonEmpty) {
+      Logger.info("Receiving message from: " + from + " for recipient: " + recipient + " found mailinglist.")
+      true
+    } else {
+      Logger.info("Receiving message from: " + from + " for recipient: " + recipient + " mailinglist not found.")
+      false
+    }
   }
 
   /**
@@ -63,23 +74,39 @@ class MessengerSimpleMessageListener extends SimpleMessageListener {
   	data.close()
   }
 
-  def sendMail(from: String, to: String, emailContents: EmailContents) {//datatext: InputStream): Unit = {
-    val email = new SimpleEmail();
-    val (host, auth, port) = getProperties
-    email.setHostName(host);
-    email.setSmtpPort(port);
+  def sendMail(from: String, to: String, emailContents: EmailContents) {
 
-    if (auth) {
-      email.setAuthenticator(new DefaultAuthenticator("username", "password"));
-    }
+    // Sample from https://github.com/typesafehub/play-plugins/tree/master/mailer#using-it-from-scala
+    val mail = use[MailerPlugin].email
+    mail.setSubject(emailContents.subject)
+    mail.addRecipient(to)
+    //or use a list
+    //mail.setBcc(List("Dummy <example@example.org>", "Dummy2 <example@example.org>"):_*)
+    mail.addFrom(from)
+    //sends html
+    //mail.sendHtml("<html>html</html>")
+    //sends text/text
+    mail.send(emailContents.txtBody)
+    //sends both text and html
+    //mail.send( "text", "<html>html</html>")
 
-    //email.setSSLOnConnect(true);
-    email.setFrom(from);
-    email.setSubject(emailContents.subject);
-    //email.setContent(multilData)//for multi part if needed
-    email.setMsg(emailContents.txtBody);
-    email.addTo(to);
-    email.send();
+    // Replaced code
+    // val email = new SimpleEmail();
+    // val (host, auth, port) = getProperties
+    // email.setHostName(host);
+    // email.setSmtpPort(port);
+
+    // if (auth) {
+    //   email.setAuthenticator(new DefaultAuthenticator("username", "password"));
+    // }
+
+    // //email.setSSLOnConnect(true);
+    // email.setFrom(from);
+    // email.setSubject(emailContents.subject);
+    // //email.setContent(multilData)//for multi part if needed
+    // email.setMsg(emailContents.txtBody);
+    // email.addTo(to);
+    // email.send();
   }
 
   private def getProperties = {

@@ -1,9 +1,8 @@
 # Mailinglist schema
- 
+
 # --- !Ups
 
 create table mailinglist (
-    --id integer NOT NULL DEFAULT nextval('task_id_seq'),
     email varchar(255) not null primary key
 );
 

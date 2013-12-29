@@ -9,8 +9,6 @@ import play.api.libs.json._
 import models._
 import org.omg.CosNaming.NamingContextPackage.NotFound
 import com.wordnik.swagger.annotations.ApiOperation
-import com.wordnik.swagger.annotations.ApiErrors
-import com.wordnik.swagger.annotations.ApiError
 
 import javax.ws.rs.{ QueryParam, PathParam }
 

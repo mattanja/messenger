@@ -28,7 +28,7 @@ import javax.ws.rs.{ QueryParam, PathParam }
 import com.wordnik.swagger.annotations._
 import com.wordnik.swagger.core.util.ScalaJsonUtil
 
-@Api(value = "/api-docs/list", description = "List operations")
+@Api(value = "/list", description = "List operations")
 object List extends Controller with Secured {
 
   /**
@@ -77,7 +77,7 @@ object List extends Controller with Secured {
    *
    * http://stackoverflow.com/questions/10898719/how-to-handle-exceptions-in-a-playframework-2-async-block-scala
    */
-  @ApiOperation(value = "Create new list", notes = "Creates a new mailing list", httpMethod = "GET")
+  @ApiOperation(value = "Create new list", notes = "Creates a new mailing list", httpMethod = "POST")
   @ApiResponses(Array(
     new ApiResponse(code = 400, message = "List with this email address already exists")))
   @ApiImplicitParams(Array(
@@ -167,7 +167,7 @@ object List extends Controller with Secured {
       }
   }
 
-  @ApiOperation(value = "Delete mailing list", notes = "Deletes the specified mailing list", httpMethod = "GET")
+  @ApiOperation(value = "Delete mailing list", notes = "Deletes the specified mailing list", httpMethod = "POST")
   @ApiResponses(Array(
     new ApiResponse(code = 404, message = "List not found")))
   def delete(

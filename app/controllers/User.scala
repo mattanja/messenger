@@ -14,7 +14,7 @@ import javax.ws.rs.{ QueryParam, PathParam }
 
 import com.wordnik.swagger.annotations._
 
-@Api(value = "/api-docs/user", description = "User operations")
+@Api(value = "/user", description = "User operations")
 object User extends Controller with Secured {
 
   /**
@@ -93,7 +93,7 @@ object User extends Controller with Secured {
   /**
    * Delete user.
    */
-  @ApiOperation(value = "Delete user", notes = "Deletes the specified user", httpMethod = "GET")
+  @ApiOperation(value = "Delete user", notes = "Deletes the specified user", httpMethod = "POST")
   @ApiResponses(Array(
     new ApiResponse(code = 404, message = "User not found")
   ))

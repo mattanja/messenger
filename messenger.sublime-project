@@ -3,7 +3,9 @@
 	[
 		{
 			"follow_symlinks": true,
-			"path": "."
+			"path": ".",
+			"folder_exclude_patterns": [".metadata", ".settings", ".target", "target"],
+			"file_exclude_patterns": [".classpath"],
 		}
 	]
 }

@@ -36,3 +36,4 @@ dist
 /conf/mail.conf
 *.sublime-workspace
 project/activator*
+/activator*

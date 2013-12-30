@@ -79,10 +79,10 @@ class MessengerSimpleMessageListener extends SimpleMessageListener {
     // Sample from https://github.com/typesafehub/play-plugins/tree/master/mailer#using-it-from-scala
     val mail = use[MailerPlugin].email
     mail.setSubject(emailContents.subject)
-    mail.addRecipient(to)
+    mail.setRecipient(to)
     //or use a list
     //mail.setBcc(List("Dummy <example@example.org>", "Dummy2 <example@example.org>"):_*)
-    mail.addFrom(from)
+    mail.setFrom(from)
     //sends html
     //mail.sendHtml("<html>html</html>")
     //sends text/text

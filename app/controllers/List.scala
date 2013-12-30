@@ -24,13 +24,11 @@ import play.api.libs.json._
 import play.api.libs.concurrent._
 import models._
 import models.JsonModel._
-//import org.omg.CosNaming.NamingContextPackage.NotFound
-
 import javax.ws.rs.{ QueryParam, PathParam }
-
 import com.wordnik.swagger.annotations._
+import com.wordnik.swagger.core.util.ScalaJsonUtil
 
-@Api(value = "/data/list", listingPath = "/api-docs.{format}/list", description = "List operations")
+@Api(value = "/api-docs/list", description = "List operations")
 object List extends Controller with Secured {
 
   /**
@@ -62,7 +60,7 @@ object List extends Controller with Secured {
   /**
    * List of lists (JSON).
    */
-  @ApiOperation(value = "Get mailinglists", notes = "Returns all mailinglists", responseClass = "String", multiValueResponse = true, httpMethod = "GET")
+  @ApiOperation(value = "Get mailinglists", notes = "Returns all mailinglists", httpMethod = "GET")
   def list = IsAuthenticated { username =>
     implicit request =>
       Async {
@@ -79,11 +77,11 @@ object List extends Controller with Secured {
    *
    * http://stackoverflow.com/questions/10898719/how-to-handle-exceptions-in-a-playframework-2-async-block-scala
    */
-  @ApiOperation(value = "Create new list", notes = "Creates a new mailing list", responseClass = "models.Mailinglist", httpMethod = "GET")
-  @ApiErrors(Array(
-    new ApiError(code = 400, reason = "List with this email address already exists")))
-  @ApiParamsImplicit(Array(
-    new ApiParamImplicit(value = "List object with the email address", required = true, dataType = "models.Mailinglist", paramType = "body")))
+  @ApiOperation(value = "Create new list", notes = "Creates a new mailing list", httpMethod = "GET")
+  @ApiResponses(Array(
+    new ApiResponse(code = 400, message = "List with this email address already exists")))
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(value = "List object with the email address", required = true, dataType = "models.Mailinglist", paramType = "body")))
   def create = IsAuthenticated { username =>
     implicit request =>
       try {
@@ -106,9 +104,9 @@ object List extends Controller with Secured {
   /**
    * The list detail view.
    */
-  @ApiOperation(value = "Get list details", notes = "Returns the details of the list", responseClass = "Mailinglist", httpMethod = "GET")
-  @ApiErrors(Array(
-    new ApiError(code = 404, reason = "List not found")))
+  @ApiOperation(value = "Get list details", notes = "Returns the details of the list", httpMethod = "GET")
+  @ApiResponses(Array(
+    new ApiResponse(code = 404, message = "List not found")))
   def detail(
     @ApiParam(value = "Email of the list")@PathParam("email") email: String) = IsAuthenticated { username =>
     implicit request =>
@@ -133,12 +131,12 @@ object List extends Controller with Secured {
    *
    * @param email the email-address of the list to be updated
    */
-  @ApiOperation(value = "Update list", notes = "Returns the new list values", responseClass = "models.JsonModel.ListUpdateResponse", httpMethod = "POST")
-  @ApiErrors(Array(
-    new ApiError(code = 400, reason = "Invalid ID supplied"),
-    new ApiError(code = 404, reason = "List not found")))
-  @ApiParamsImplicit(Array(
-    new ApiParamImplicit(value = "List object with the information to update", required = true, dataType = "models.JsonModel.ListUpdateViewModel", paramType = "body")))
+  @ApiOperation(value = "Update list", notes = "Returns the new list values", httpMethod = "POST")
+  @ApiResponses(Array(
+    new ApiResponse(code = 400, message = "Invalid ID supplied"),
+    new ApiResponse(code = 404, message = "List not found")))
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(value = "List object with the information to update", required = true, dataType = "models.JsonModel.ListUpdateViewModel", paramType = "body")))
   def update(
     @ApiParam(value = "Email of the list to update")@PathParam("email") email: String) = IsAuthenticated { username =>
     implicit request =>
@@ -169,9 +167,9 @@ object List extends Controller with Secured {
       }
   }
 
-  @ApiOperation(value = "Delete mailing list", notes = "Deletes the specified mailing list", responseClass = "models.Mailinglist", httpMethod = "GET")
-  @ApiErrors(Array(
-    new ApiError(code = 404, reason = "List not found")))
+  @ApiOperation(value = "Delete mailing list", notes = "Deletes the specified mailing list", httpMethod = "GET")
+  @ApiResponses(Array(
+    new ApiResponse(code = 404, message = "List not found")))
   def delete(
     @ApiParam(value = "Email of the mailing list to delete")@PathParam("email") email: String) = IsAuthenticated { username =>
     _ => {

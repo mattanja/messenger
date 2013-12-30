@@ -14,7 +14,7 @@ import javax.ws.rs.{ QueryParam, PathParam }
 
 import com.wordnik.swagger.annotations._
 
-@Api(value = "/data/user", listingPath = "/api-docs.{format}/user", description = "User operations")
+@Api(value = "/api-docs/user", description = "User operations")
 object User extends Controller with Secured {
 
   /**
@@ -42,7 +42,7 @@ object User extends Controller with Secured {
   /**
    * List of users (JSON).
    */
-  @ApiOperation(value = "Get users", notes = "Returns all users", responseClass = "models.User", multiValueResponse=true, httpMethod = "GET")
+  @ApiOperation(value = "Get users", notes = "Returns all users", httpMethod = "GET")
   def list = IsAuthenticated { username =>
     implicit request =>
       Async {
@@ -55,12 +55,12 @@ object User extends Controller with Secured {
       }
   }
 
-  @ApiOperation(value = "Add new user", notes = "Returns the new users details", responseClass = "User", httpMethod = "POST")
-  @ApiErrors(Array(
-    new ApiError(code = 400, reason = "Email already exists"),
-    new ApiError(code = 400, reason = "Invalid data")))
-  @ApiParamsImplicit(Array(
-    new ApiParamImplicit(value = "User object", required = true, dataType = "models.User", paramType = "body")))
+  @ApiOperation(value = "Add new user", notes = "Returns the new users details", httpMethod = "POST")
+  @ApiResponses(Array(
+    new ApiResponse(code = 400, message = "Email already exists"),
+    new ApiResponse(code = 400, message = "Invalid data")))
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(value = "User object", required = true, dataType = "models.User", paramType = "body")))
   def create() = IsAuthenticated { username =>
     implicit request =>
     try {
@@ -93,9 +93,9 @@ object User extends Controller with Secured {
   /**
    * Delete user.
    */
-  @ApiOperation(value = "Delete user", notes = "Deletes the specified user", responseClass = "User", httpMethod = "GET")
-  @ApiErrors(Array(
-    new ApiError(code = 404, reason = "User not found")
+  @ApiOperation(value = "Delete user", notes = "Deletes the specified user", httpMethod = "GET")
+  @ApiResponses(Array(
+    new ApiResponse(code = 404, message = "User not found")
   ))
   def delete(
     @ApiParam(value = "Email of the user to delete")@PathParam("email") email: String) = IsAuthenticated { username =>

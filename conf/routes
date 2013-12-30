@@ -6,7 +6,7 @@
 GET      /                     controllers.Application.index
 
 # Swagger
-GET      /api-docs.json        controllers.ApiHelpController.getResources
+GET      /api-docs	           controllers.ApiHelpController.getResources
 
 # Authentication
 GET      /login                controllers.Application.login
@@ -14,8 +14,8 @@ POST     /login                controllers.Application.authenticate
 GET      /logout               controllers.Application.logout
 
 # Lists
-GET      /api-docs.json/list   controllers.ApiHelpController.getResource(path = "/api-docs.json/list")
-GET      /lists                controllers.List.index
+GET      /api-docs/list        controllers.ApiHelpController.getResource(path = "/api-docs/list")
+GET      /list                 controllers.List.index
 GET      /list/:email          controllers.List.detailView(email: String)
 GET      /data/list/list               controllers.List.list
 POST     /data/list/create             controllers.List.create
@@ -24,8 +24,8 @@ POST     /data/list/update/:email      controllers.List.update(email: String)
 POST	 /data/list/delete/:email      controllers.List.delete(email: String)
 
 # Users / Members
-GET      /api-docs.json/user   controllers.ApiHelpController.getResource(path = "/api-docs.json/user")
-GET      /users                controllers.User.index
+GET      /api-docs/user        controllers.ApiHelpController.getResource(path = "/api-docs/user")
+GET      /user                 controllers.User.index
 GET      /user/:email          controllers.User.detailView(email: String)
 GET      /data/user/list               controllers.User.list
 POST     /data/user/create             controllers.User.create

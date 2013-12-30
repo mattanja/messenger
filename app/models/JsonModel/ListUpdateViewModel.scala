@@ -8,7 +8,7 @@ import play.api.libs.json._
 
 @XmlRootElement(name = "ListUpdateViewModel")
 case class ListUpdateViewModel(
-	@XmlElement(name = "email")@ApiProperty(value = "List email") email: String,
+	@XmlElement(name = "email")@ApiParam(value = "List email") email: String,
 	@XmlElement(name = "addMembers") addMembers: List[String] = Nil,
 	@XmlElement(name = "removeMembers") removeMembers: List[String] = Nil
 )

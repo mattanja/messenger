@@ -2,6 +2,7 @@ package controllers
 
 import play.api._
 import play.api.mvc._
+import play.api.mvc.Security._
 import play.api.mvc.Results._
 import play.api.libs.iteratee._
 
@@ -10,6 +11,11 @@ import play.api.libs.iteratee._
  */
 trait Secured {
 
+  /**
+   * http://www.playframework.com/documentation/2.2.x/api/scala/index.html#play.api.mvc.Security$$AuthenticatedBuilder$
+   */
+  object Authenticated extends AuthenticatedBuilder(req => None)
+  
   /**
    * Retrieve the connected user email.
    * 
@@ -27,9 +33,10 @@ trait Secured {
   /**
    * Action for authenticated users.
    */
-  def IsAuthenticated(f: => String => Request[AnyContent] => Result) = play.api.mvc.Security.Authenticated(username, onUnauthorized) { user =>
-    Action(request => f(user)(request))
-  }
+  def IsAuthenticated(f: => String => Request[AnyContent] => Result) =
+    play.api.mvc.Security.Authenticated(username, onUnauthorized) { user =>
+      Action(request => f(user)(request))
+  	}
 
   /**
    * Check if the connected user is a member of this project.

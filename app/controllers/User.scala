@@ -7,8 +7,10 @@ import play.api.data.Forms._
 import play.api.libs.concurrent._
 import play.api.libs.json._
 import models._
+import service._
 import org.omg.CosNaming.NamingContextPackage.NotFound
 import com.wordnik.swagger.annotations.ApiOperation
+import scala.slick.session.Database.threadLocalSession
 
 import javax.ws.rs.{ QueryParam, PathParam }
 
@@ -43,16 +45,18 @@ object User extends Controller with Secured {
    * List of users (JSON).
    */
   @ApiOperation(value = "Get users", notes = "Returns all users", httpMethod = "GET")
-  def list = IsAuthenticated { username =>
-    implicit request =>
-      Async {
-        models.User.findByEmail(username).map { user =>
-          Promise.pure(
-            render {
-              case Accepts.Json() => Ok(Json.toJson(models.User.findAll))
-            })
-        }.getOrElse(Promise.pure(Forbidden))
-      }
+  def list = Authenticated { implicit request =>
+    object UserService extends UserService
+    Ok(Json.toJson(UserService.findAll))
+//    implicit request =>
+//      Async {
+//        models.User.findByEmail(username).map { user =>
+//          Promise.pure(
+//            render {
+//              case Accepts.Json() => Ok(Json.toJson(models.User.findAll))
+//            })
+//        }.getOrElse(Promise.pure(Forbidden))
+//      }
   }
 
   @ApiOperation(value = "Add new user", notes = "Returns the new users details", httpMethod = "POST")

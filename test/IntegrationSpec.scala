@@ -15,13 +15,13 @@ import play.api.libs.ws.WS
  * add your integration spec here.
  * An integration test will fire up a whole play application in a real (or headless) browser
  */
-object IntegrationSpec extends Specification {
+object IntegrationSpec extends PlaySpecification {
   sequential
 
   def testServer = TestServer(15155, FakeApplication(additionalConfiguration = inMemoryDatabase()))
 
   "run in a server" in new WithServer(app = FakeApplication(additionalConfiguration = inMemoryDatabase())) {
-    await(WS.url("http://localhost:" + port).get).status must equalTo(OK)
+    play.api.test.Helpers.await(WS.url("http://localhost:" + port).get).status must equalTo(OK)
   }
 
   "app" should {

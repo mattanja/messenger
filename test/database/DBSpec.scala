@@ -47,12 +47,12 @@ class UserSpec extends Specification with DBFake {
     }
 
     "should create user if does not exist" in running(fake) {
-      val user = User("new@new.com.br", "new", "secret")
+      val user = User(None, "new@new.com.br", "new", "secret")
       User.create(user) must beEqualTo(1)
     }
 
     "should not create if email exist " in running(fake) {
-      val user = User("andre@terra.com.br", "asdandre", "secret")
+      val user = User(None, "andre@terra.com.br", "asdandre", "secret")
       User.create(user) must beEqualTo(0)
     }
   }

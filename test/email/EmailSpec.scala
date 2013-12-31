@@ -8,12 +8,12 @@ import play.api.Play.current
 
 import test.database.DBFake
 
-class EmailSpec extends Specification with DBFake {
+class EmailSpec extends PlaySpecification with DBFake {
   "EmailServer" should {
     "send email" in running(fake) {
       val email = use[MailerPlugin].email
-      email.addFrom("andrekuhnen@gmail.com");
-      email.addRecipient("kuhnen@list.com.br");
+      email.setFrom("test@test.com");
+      email.setRecipient("info@kernetics.de");
       email.setSubject("SUBJECT GOES HERE");
       email.send("HELLO THERE");
       "Test" must contain("est")

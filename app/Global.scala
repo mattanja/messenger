@@ -1,8 +1,10 @@
 import play.api._
 import models._
+import service._
 import anorm._
 import org.subethamail.smtp.server._
 import play.api.db.DB
+import scala.slick.lifted.Query
 
 object Global extends GlobalSettings {
 
@@ -45,15 +47,16 @@ object Global extends GlobalSettings {
   def date(str: String) = new java.text.SimpleDateFormat("yyyy-MM-dd").parse(str)
 
   def insert() = {
+	object UserService extends UserService
     
     // TODO this sql result might become big someday
-    if (User.findAll.isEmpty) {
+    if (0 < 1) {
       Logger.trace("Inserting initial user data...")
       val users = Seq(
-        User("user1@kernetics.de", "User 1", "secret"),
-        User("user2@kernetics.de", "User 2", "secret"),
-        User("user3@kernetics.de", "User 3", "secret"),
-        User("user4@kernetics.de", "User 4", "secret")
+        User(None, "user1@kernetics.de", "User 1", "secret"),
+        User(None, "user2@kernetics.de", "User 2", "secret"),
+        User(None, "user3@kernetics.de", "User 3", "secret"),
+        User(None, "user4@kernetics.de", "User 4", "secret")
         )
       users.foreach(User.create)
 

@@ -5,20 +5,23 @@ import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
 import play.api.libs.concurrent._
-import play.api.libs.json._
-
-import models._
-// you need this import to have combinators
 import play.api.libs.functional.syntax._
+import play.api.libs.json._
+import models._
+import service._
+
+import scala.slick.session.Database.threadLocalSession
 
 trait Application extends Controller with Secured {
   this: Controller =>
+
+  object UserService extends UserService
 
   /**
    * Index page
    */
   def index = Action { implicit request =>
-    request.session.get("email") flatMap (email => models.User.findByEmail(email)) map { user =>
+    request.session.get("email") flatMap (email => UserService.findByEmail(email)) map { user =>
       Ok(views.html.index(user))
     } getOrElse {
       Ok(views.html.index(null))
@@ -32,7 +35,7 @@ trait Application extends Controller with Secured {
    * 
    */
   def test() = IsAuthenticated { username => implicit request =>
-    models.User.findByEmail(username).map { user =>
+    UserService.findByEmail(username).map { user =>
       Ok(Json.toJson(user))
     }.getOrElse(Forbidden)
   }
@@ -43,7 +46,7 @@ trait Application extends Controller with Secured {
     tuple(
       "email" -> text,
       "password" -> text) verifying ("Invalid email or password", result => result match {
-        case (email, password) => models.User.authenticate(email, password).isDefined
+        case (email, password) => UserService.authenticate(email, password).isDefined
       }))
 
   /**

@@ -4,7 +4,12 @@ import service._
 import anorm._
 import org.subethamail.smtp.server._
 import play.api.db.DB
+import play.api.Play.current
+
+// Use H2Driver to connect to an H2 database
+import scala.slick.driver.H2Driver.simple._
 import scala.slick.lifted.Query
+import scala.slick.session.Database.threadLocalSession
 
 object Global extends GlobalSettings {
 
@@ -47,34 +52,35 @@ object Global extends GlobalSettings {
   def date(str: String) = new java.text.SimpleDateFormat("yyyy-MM-dd").parse(str)
 
   def insert() = {
-	object UserService extends UserService
-    
-    // TODO this sql result might become big someday
-    if (0 < 1) {
-      Logger.trace("Inserting initial user data...")
-      val users = Seq(
-        User(None, "user1@kernetics.de", "User 1", "secret"),
-        User(None, "user2@kernetics.de", "User 2", "secret"),
-        User(None, "user3@kernetics.de", "User 3", "secret"),
-        User(None, "user4@kernetics.de", "User 4", "secret")
+    scala.slick.session.Database.forURL("dbc:h2:mem:play", driver = "org.h2.Driver") withSession {
+  	  object UserService extends UserService
+  	  
+  	  // Check for empty table
+      if ((for{mt <- Users} yield mt.length).first < 1)
+        Logger.trace("Inserting initial user data...")
+        Users.insertAll(
+            (User(None, "user1@kernetics.de", "User 1", "secret")),
+            (User(None, "user2@kernetics.de", "User 2", "secret")),
+            (User(None, "user3@kernetics.de", "User 3", "secret")),
+            (User(None, "user4@kernetics.de", "User 4", "secret"))
         )
-      users.foreach(User.create)
 
-      if (Mailinglist.findAll.isEmpty) {
-        Logger.trace("Inserting initial list data...")
-        val lists = Seq(
-          Mailinglist("list1@kernetics.de"),
-          Mailinglist("list2@kernetics.de"),
-          Mailinglist("list3@kernetics.de"),
-          Mailinglist("list4@kernetics.de")
-          )
-        lists.foreach(l => Mailinglist.create(l.email))
+        if (Mailinglist.findAll.isEmpty) {
+          Logger.trace("Inserting initial list data...")
+          val lists = Seq(
+            Mailinglist("list1@kernetics.de"),
+            Mailinglist("list2@kernetics.de"),
+            Mailinglist("list3@kernetics.de"),
+            Mailinglist("list4@kernetics.de")
+            )
+          lists.foreach(l => Mailinglist.create(l.email))
 
-        if (MailinglistMembership.findAll.isEmpty) {
-          Logger.trace("Inserting initial list membership data...")
-          for (l <- lists; u <- users) { MailinglistMembership.create(l.email, u.email) }
+          if (MailinglistMembership.findAll.isEmpty) {
+            Logger.trace("Inserting initial list membership data...")
+            for (l <- lists; u <- UserService.findAll) { MailinglistMembership.create(l.email, u.email) }
+          }
         }
-      }
+      //}
     }
   }
 }

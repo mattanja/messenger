@@ -23,14 +23,22 @@ import play.api.data.Forms._
 import play.api.libs.json._
 import play.api.libs.concurrent._
 import models._
+import service._
 import models.JsonModel._
 import javax.ws.rs.{ QueryParam, PathParam }
 import com.wordnik.swagger.annotations._
 import com.wordnik.swagger.core.util.ScalaJsonUtil
 
+// Use H2Driver to connect to an H2 database
+import scala.slick.driver.H2Driver.simple._
+import scala.slick.lifted.Query
+import scala.slick.session.Database.threadLocalSession
+
 @Api(value = "/list", description = "List operations")
 object List extends Controller with Secured {
 
+  object UserService extends UserService
+  
   /**
    * Define the form object (kind of "view model")
    * http://www.playframework.com/documentation/2.1.0/ScalaForms
@@ -42,7 +50,7 @@ object List extends Controller with Secured {
    */
   def index = IsAuthenticated { username =>
     implicit request =>
-    models.User.findByEmail(username).map { user =>
+    UserService.findByEmail(username).map { user =>
       Ok(views.html.List.index(user))
     }.getOrElse(Forbidden)
   }
@@ -52,7 +60,7 @@ object List extends Controller with Secured {
    */
   def detailView(email: String) = IsAuthenticated { username =>
     implicit request =>
-    models.User.findByEmail(username).map { user =>
+    UserService.findByEmail(username).map { user =>
       Ok(views.html.List.detail(user, email))
     }.getOrElse(Forbidden)
   }
@@ -64,7 +72,7 @@ object List extends Controller with Secured {
   def list = IsAuthenticated { username =>
     implicit request =>
       Async {
-        models.User.findByEmail(username).map { user =>
+        UserService.findByEmail(username).map { user =>
           Promise.pure(
             render {
               case Accepts.Json() => Ok(Json.toJson(models.Mailinglist.findAll))
@@ -111,7 +119,7 @@ object List extends Controller with Secured {
     @ApiParam(value = "Email of the list")@PathParam("email") email: String) = IsAuthenticated { username =>
     implicit request =>
       Async {
-        models.User.findByEmail(username).map { user =>
+        UserService.findByEmail(username).map { user =>
           Promise.pure(
             render {
               // For regular request render empty view only
@@ -141,7 +149,7 @@ object List extends Controller with Secured {
     @ApiParam(value = "Email of the list to update")@PathParam("email") email: String) = IsAuthenticated { username =>
     implicit request =>
       try {
-        models.User.findByEmail(username).map { user =>
+        UserService.findByEmail(username).map { user =>
           models.Mailinglist.findByEmailWithUsers(email).map { currentList =>
             // JSON
             request.body.asJson.map { json =>
@@ -150,7 +158,7 @@ object List extends Controller with Secured {
                   // Validate member
                   MailinglistMembership.create(
                     m.email,
-                    models.User.findByEmail(memberEmail) getOrElse (throw new Exception("No user with this email found: " + memberEmail)))
+                    UserService.findByEmail(memberEmail) getOrElse (throw new Exception("No user with this email found: " + memberEmail)))
                 }
                 m.removeMembers.map { member =>
                   MailinglistMembership.delete(m.email, member)

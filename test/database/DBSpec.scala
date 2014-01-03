@@ -1,10 +1,11 @@
 package test.database
 
 import org.specs2.mutable._
-
 import models.User
 import play.api.test._
 import play.api.test.Helpers._
+import service.UserService
+import scala.slick.session.Database.threadLocalSession
 
 trait DBFake {
   val memoryDB = inMemoryDatabase("test")
@@ -17,43 +18,46 @@ trait DBFake {
 }
 
 class UserSpec extends Specification with DBFake {
+  
+  object UserService extends UserService
+  
   "User" should {
     "be retrieved by id(email)" in running(fake) {
-      val Some(user) = User.findByEmail("kuhnen@terra.com.br")
+      val Some(user) = UserService.findByEmail("kuhnen@terra.com.br")
       user.name must equalTo("kuhnen")
       user.email must equalTo("kuhnen@terra.com.br")
       user.password must equalTo("secret")
     }
 
     "not be retrieved if does not exit" in running(fake) {
-      User.findByEmail("not@there.here") must beNone
+      UserService.findByEmail("not@there.here") must beNone
     }
 
     "should retrieve all users" in running(fake) {
       val expected = Set("kuhnen", "andre", "matt", "test")
-      User.findAll.map(_.name).toSet must beEqualTo(expected)
+      UserService.findAll.map(_.name).toSet must beEqualTo(expected)
     }
 
     "should authenticate if exists" in running(fake) {
-      User.authenticate("test@test.com.br", "secret") must beSome
+      UserService.authenticate("test@test.com.br", "secret") must beSome
     }
 
     "should not be authenticate if does not exists" in running(fake) {
-      User.authenticate("testa@test.com.br", "secret") must beNone
+      UserService.authenticate("testa@test.com.br", "secret") must beNone
     }
 
     "should not be authenticate if does password is wrong" in running(fake) {
-      User.authenticate("test@test.com.br", "secreta") must beNone
+      UserService.authenticate("test@test.com.br", "secreta") must beNone
     }
 
     "should create user if does not exist" in running(fake) {
       val user = User(None, "new@new.com.br", "new", "secret")
-      User.create(user) must beEqualTo(1)
+      UserService.save(user).id must beGreaterThan(0L)
     }
 
     "should not create if email exist " in running(fake) {
       val user = User(None, "andre@terra.com.br", "asdandre", "secret")
-      User.create(user) must beEqualTo(0)
+      UserService.save(user).id must beGreaterThan(0L)
     }
   }
 }

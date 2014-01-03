@@ -6,10 +6,10 @@ import org.subethamail.smtp.server._
 import play.api.db.DB
 import play.api.Play.current
 
-// Use H2Driver to connect to an H2 database
+// Database
 import scala.slick.driver.H2Driver.simple._
+import Database.threadLocalSession
 import scala.slick.lifted.Query
-import scala.slick.session.Database.threadLocalSession
 
 object Global extends GlobalSettings {
 
@@ -52,11 +52,11 @@ object Global extends GlobalSettings {
   def date(str: String) = new java.text.SimpleDateFormat("yyyy-MM-dd").parse(str)
 
   def insert() = {
-    scala.slick.session.Database.forURL("dbc:h2:mem:play", driver = "org.h2.Driver") withSession {
+    Database.forDataSource(DB.getDataSource()) .withSession {
   	  object UserService extends UserService
-  	  
+
   	  // Check for empty table
-      if ((for{mt <- Users} yield mt.length).first < 1)
+      if ((for{mt <- Users} yield mt).firstOption.isDefined)
         Logger.trace("Inserting initial user data...")
         Users.insertAll(
             (User(None, "user1@kernetics.de", "User 1", "secret")),

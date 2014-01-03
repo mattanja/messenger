@@ -30,9 +30,9 @@ trait Application extends Controller with Secured {
 
   /**
    * Sample / testing
-   * 
+   *
    * JSON user data
-   * 
+   *
    */
   def test() = IsAuthenticated { username => implicit request =>
     UserService.findByEmail(username).map { user =>

@@ -24,7 +24,7 @@ import com.wordnik.swagger.annotations._
 object User extends Controller with Secured {
 
   object UserService extends UserService
-  
+
   /**
    * Index view (no data).
    */

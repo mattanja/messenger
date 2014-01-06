@@ -1,25 +1,53 @@
 package models
 
-import anorm._
-import play.api.db._
 import play.api.Play.current
-import anorm.SqlParser._
+import play.api.libs.json._
 import play.api.Logger
 import play.api.libs.json._
+import play.api.db.DB
 
-/**
- *
- * TODO: implement relation between user and mailinglist
- */
+// DB
+import scala.slick.driver.H2Driver.simple._
+import scala.slick.session.Session
+import org.virtuslab.unicorn.ids._
+
+/** Id class for type-safe joins and queries. */
+case class MailinglistMembershipId(id: Long) extends AnyVal with BaseId
+
+object MailinglistMembershipId extends IdCompanion[MailinglistMembershipId] {
+  implicit val fmt = Json.format[MailinglistMembershipId]
+  implicit val mailinglistMembershipIdType = MappedTypeMapper.base[MailinglistMembershipId, Long](_.id, new MailinglistMembershipId(_))
+}
+
 case class MailinglistMembership(
-  memberemail: String,
-  mailinglistemail: String,
+  id: Option[MailinglistMembershipId],
+  mailinglist: MailinglistId,
+  user: UserId,
   isApproved: Boolean,
-  isActive: Boolean)
+  isActive: Boolean
+) extends WithId[MailinglistMembershipId]
 
 object MailinglistMembership {
   implicit val fmt = Json.format[MailinglistMembership]
+}
 
+object MailinglistMemberships extends IdTable[MailinglistMembershipId, MailinglistMembership]("MailinglistMembers") {
+  def mailinglist = column[MailinglistId]("MailinglistId")
+  def user = column[UserId]("UserId")
+  def isApproved = column[Boolean]("IsApproved")
+  def isActive = column[Boolean]("IsActive")
+  def mailinglistFK = foreignKey("fk_mailinglist", mailinglist, Mailinglists)(_.id)
+  def userFK = foreignKey("fk_user", user, Users)(_.id)
+
+  def base = mailinglist ~ user ~ isApproved ~ isActive
+
+  override def * = id.? ~: base <> (MailinglistMembership.apply _, MailinglistMembership.unapply _)
+
+  override def insertOne(elem: MailinglistMembership)(implicit session: Session): MailinglistMembershipId =
+    saveBase(base, MailinglistMembership.unapply _)(elem)
+}
+
+/*
   def create(mailinglist_email: String, user_email: String) = DB.withConnection { implicit c =>
     try {
       SQL("insert into mailinglist_member values ({mailinglist_email}, {user_email})").
@@ -66,3 +94,4 @@ object MailinglistMembership {
       SQL("DELETE FROM mailinglist_member").execute
     }
 }
+*/

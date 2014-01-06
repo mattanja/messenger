@@ -1,31 +1,21 @@
 package models
 
+import play.api.db._
 import play.api.Play.current
-import play.api.libs.json._
-import anorm._
-import anorm.SqlParser._
 import play.api.Logger
 import play.api.libs.json._
-import play.api.db.DB
 
-
-// Use H2Driver to connect to an H2 database
+// DB
 import scala.slick.driver.H2Driver.simple._
-
-// Use the implicit threadLocalSession
-//import Database.threadLocalSession
 import scala.slick.session.Session
 import org.virtuslab.unicorn.ids._
 
 /** Id class for type-safe joins and queries. */
 case class UserId(id: Long) extends AnyVal with BaseId
 
-/**
- * Companion object for id class, extends IdMapping
- * and brings all required implicits to scope when needed.
- */
 object UserId extends IdCompanion[UserId] {
   implicit val fmt = Json.format[UserId]
+  //implicit val userIdType = MappedTypeMapper.base[UserId, Long](_.id, new UserId(_))
 }
 
 case class User(
@@ -49,9 +39,6 @@ object User {
  * (based on example from https://github.com/VirtusLab/activator-play-advanced-slick)
  */
 object Users extends IdTable[UserId, User]("Users") {
-
-  implicit val userIdType = MappedTypeMapper.base[UserId, Long](_.id, new UserId(_))
-
   def email = column[String]("email", O.NotNull)
   def name = column[String]("name", O.NotNull)
   def password = column[String]("password", O.NotNull)
@@ -61,4 +48,7 @@ object Users extends IdTable[UserId, User]("Users") {
 
   override def insertOne(elem: User)(implicit session: Session): UserId =
     saveBase(base, User.unapply _)(elem)
+
+  def memberships = MailinglistMemberships.filter(_.user === id)
+  def mailinglists = memberships.flatMap(_.mailinglistFK)
 }

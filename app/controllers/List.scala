@@ -32,12 +32,14 @@ import com.wordnik.swagger.core.util.ScalaJsonUtil
 // Use H2Driver to connect to an H2 database
 import scala.slick.driver.H2Driver.simple._
 import scala.slick.lifted.Query
+import scala.slick.lifted._
 import scala.slick.session.Database.threadLocalSession
 
 @Api(value = "/list", description = "List operations")
 object List extends Controller with Secured {
 
   object UserService extends UserService
+  object MailinglistService extends MailinglistService
   
   /**
    * Define the form object (kind of "view model")
@@ -75,7 +77,7 @@ object List extends Controller with Secured {
         UserService.findByEmail(username).map { user =>
           Promise.pure(
             render {
-              case Accepts.Json() => Ok(Json.toJson(models.Mailinglist.findAll))
+              case Accepts.Json() => Ok(Json.toJson(MailinglistService.findAll))
             })
         }.getOrElse(Promise.pure(Forbidden))
       }
@@ -95,7 +97,7 @@ object List extends Controller with Secured {
       try {
         request.body.asJson.map { json =>
           json.validate(models.Mailinglist.fmt).map { m =>
-            if (models.Mailinglist.create(m.email) == 1) {
+            if (Mailinglists.insertOne(Mailinglist(None, m.email, m.email)).id > 0) {
               Ok(Json.toJson(m))
             } else {
               BadRequest("Error creating new list")
@@ -125,7 +127,8 @@ object List extends Controller with Secured {
               // For regular request render empty view only
               case Accepts.Html() => Ok(views.html.List.detail(user, email)) //, models.Mailinglist.findByEmailWithUsers(email), user))
               // Get data for JSON request
-              case Accepts.Json() => Ok(Json.toJson(models.Mailinglist.findByEmailWithUsers(email)))
+              // TODO add members info
+              case Accepts.Json() => Ok(Json.toJson(MailinglistService.findByEmail(email)))
             })
         }.getOrElse(Promise.pure(Forbidden))
       }
@@ -150,20 +153,26 @@ object List extends Controller with Secured {
     implicit request =>
       try {
         UserService.findByEmail(username).map { user =>
-          models.Mailinglist.findByEmailWithUsers(email).map { currentList =>
+          MailinglistService.findByEmail(email).map { currentList =>
             // JSON
             request.body.asJson.map { json =>
               json.validate(ListUpdateViewModel.fmt).map { m =>
                 m.addMembers.map { memberEmail =>
-                  // Validate member
-                  MailinglistMembership.create(
-                    m.email,
-                    UserService.findByEmail(memberEmail) getOrElse (throw new Exception("No user with this email found: " + memberEmail)))
+                  // TODO: Validate member
+                  // TODO
+                  //MailinglistMembership.create(m.email, UserService.findByEmail(memberEmail) getOrElse (throw new Exception("No user with this email found: " + memberEmail)))
                 }
                 m.removeMembers.map { member =>
-                  MailinglistMembership.delete(m.email, member)
+                  // TODO
+                  //MailinglistMembership.delete(m.email, member)
                 }
-                Ok(Json.toJson(new ListUpdateResponse(models.Mailinglist.findByEmailWithUsers(email))))
+                
+                //Ok(Json.toJson(new ListUpdateResponse(MailinglistService.findByEmailWithUsers(email))))
+                Ok(Json.toJson(new ListUpdateResponse(
+                  MailinglistService.findByEmail(email).map { u =>
+                    // TODO: members from u.users
+                    Mailinglist(u.id, u.email, u.name)
+                  })))
               }.recoverTotal {
                 e => BadRequest(Json.toJson(new ListUpdateResponse(Option.empty, false, Seq(e.toString()))))
               }
@@ -181,10 +190,17 @@ object List extends Controller with Secured {
   def delete(
     @ApiParam(value = "Email of the mailing list to delete")@PathParam("email") email: String) = IsAuthenticated { username =>
     _ => {
-      models.Mailinglist.findByEmailWithUsers(email).map { listToDelete =>
-        models.Mailinglist.delete(listToDelete.email)
-        Ok(Json.toJson(listToDelete))
-      }.getOrElse(BadRequest("List not found"))
+      // TODO test this
+      Option(Query(Mailinglists).where(_.email === email).mutate(_.delete)) match {
+        case Some(value) => Ok(Json.toJson(email))
+        case None => BadRequest("List not found")
+      }
+        
+//      MailinglistService.findByEmail(email).map { listToDelete =>
+//        //models.Mailinglist.delete(listToDelete.email)
+//        (Ok(Json.toJson(listToDelete)))
+//        
+//      }.getOrElse(BadRequest("List not found"))
     }
   }
 }

@@ -1,26 +1,34 @@
 package models
 
-import anorm._
-import anorm.SqlParser._
 import play.api.db._
 import play.api.Play.current
 import play.api.Logger
 import play.api.libs.json._
 
-abstract class Mailing {
-  val members: List[String]
+// DB
+import scala.slick.driver.H2Driver.simple._
+import scala.slick.session.Session
+import org.virtuslab.unicorn.ids._
+
+/** Id class for type-safe joins and queries. */
+case class MailinglistId(id: Long) extends AnyVal with BaseId
+
+object MailinglistId extends IdCompanion[MailinglistId] {
+  implicit val fmt = Json.format[MailinglistId]
+  //implicit val mailinglistIdType = MappedTypeMapper.base[MailinglistId, Long](_.id, new MailinglistId(_))
+}
+
+trait Mailing {
+  //val members: List[String]
 }
 
 case class Mailinglist(
+  id: Option[MailinglistId],
   email: String,
-  members: List[String] = List.empty) extends Mailing {
-
-  def add(member: User): Int = add(member.email)
-
-  def add(member: String): Int = MailinglistMembership.create(email, member)
-
-  override def toString = "Maillist: " + email + " Members: " + members
-}
+  name: String
+)
+extends WithId[MailinglistId]
+with Mailing
 
 /**
  * This uses ScalaAnorm, packaged with play! framework 2
@@ -28,18 +36,23 @@ case class Mailinglist(
  */
 object Mailinglist {
   implicit val fmt = Json.format[Mailinglist]
+}
 
-  //def apply(mailList: String) = new Mailinglist(mailList, findUsers(mailList))
+object Mailinglists extends IdTable[MailinglistId, Mailinglist]("Mailinglists") {
+  def email = column[String]("email", O.NotNull)
+  def name = column[String]("name", O.NotNull)
+  def base = email ~ name
 
-  def findUsers(mailList: String) = Mailinglist.findByEmailWithUsers(mailList).
-    getOrElse(EmptyMailinglist).members
+  override def * = id.? ~: base <> (Mailinglist.apply _, Mailinglist.unapply _)
 
-  def findAllWithUsers = DB.withConnection {
-    implicit c =>
-      groupMembersWithLists(
-        SQL("Select * from mailinglist_member").as(mailinglist *)).toList
-  }
+  override def insertOne(elem: Mailinglist)(implicit session: Session): MailinglistId =
+    saveBase(base, Mailinglist.unapply _)(elem)
+    
+  def memberships = MailinglistMemberships.filter(_.mailinglist === id)
+  def users = MailinglistMemberships.filter(_.mailinglist === id).flatMap(_.userFK)
+}
 
+/*
   def findAll = DB.withConnection {
     implicit c => SQL("SELECT email FROM mailinglist").as(simple *)
   }
@@ -95,3 +108,4 @@ object Mailinglist {
   }
 
 }
+*/

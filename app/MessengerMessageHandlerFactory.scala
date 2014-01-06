@@ -11,7 +11,6 @@ import javax.mail.Session
 import javax.mail.Transport
 import javax.mail.internet.InternetAddress
 import javax.mail.internet.MimeMessage
-
 import play.api.Logger
 import play.api.Play
 import play.api.Play.current
@@ -20,8 +19,12 @@ import org.apache.commons.mail.DefaultAuthenticator
 import models.EmailContents
 import models.MailinglistMembership
 import models.Mailinglist
-
 import com.typesafe.plugin._
+
+import service.MailinglistService
+import scala.slick.driver.H2Driver.simple._
+import Database.threadLocalSession
+import scala.slick.lifted.Query
 
 // For a more advanced message handling, check https://code.google.com/p/subetha/source/browse/trunk/src/org/subethamail/core/smtp/SMTPHandler.java
 
@@ -40,13 +43,15 @@ class MessengerMessageHandlerFactory extends SimpleMessageListenerAdapter(new Me
  */
 class MessengerSimpleMessageListener extends SimpleMessageListener {
 
+  object MailinglistService extends MailinglistService
+  
   /**
    * Implementation of org.subethamail.smtp.helper.SimpleMessageListener.accept
    *
    * Check if mailinglist exists.
    */
   def accept(from: String, recipient: String): Boolean = {
-    if (Mailinglist.findByEmail(recipient).nonEmpty) {
+    if (MailinglistService.findByEmail(recipient).nonEmpty) {
       Logger.info("Receiving message from: " + from + " for recipient: " + recipient + " found mailinglist.")
       true
     } else {
@@ -68,7 +73,7 @@ class MessengerSimpleMessageListener extends SimpleMessageListener {
     // foreach member send mail
     // MailinglistMembership.
     // Just for testing: Return message to sender
-  	val members = Mailinglist.findUsers(recipient)
+  	val members = MailinglistService.getRecipientsForList(recipient)
   	val emailContents = EmailContents(data);
   	members foreach (sendMail(_, from, emailContents))
   	data.close()

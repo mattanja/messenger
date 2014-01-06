@@ -54,7 +54,7 @@ object EmailContents {
 
         case _ => if (part.getDispositionType() != null &&
           !part.getDispositionType().equals(""))
-          //If DispositionType is null or empty, it means that it's multipart, not attached file  
+          //If DispositionType is null or empty, it means that it's multipart, not attached file
           part :: attachments
 
       }
@@ -83,12 +83,12 @@ object EmailContents {
 
   private def extractParts(mimeMsg: Message, txtBody: StringBuffer,
     parseBodyParts: Multipart => Unit): Any = {
-    //If message contains many parts - parse all parts  
+    //If message contains many parts - parse all parts
     if (mimeMsg.isMultipart()) {
       val multipart = mimeMsg.getBody
       parseBodyParts(multipart);
     } else {
-      //If it's single part message, just get text body  
+      //If it's single part message, just get text body
       val text = getTxtPart(mimeMsg)
       txtBody.append(text);
     }

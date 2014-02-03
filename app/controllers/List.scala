@@ -30,10 +30,10 @@ import com.wordnik.swagger.annotations._
 import com.wordnik.swagger.core.util.ScalaJsonUtil
 
 // Use H2Driver to connect to an H2 database
-import scala.slick.driver.H2Driver.simple._
+import scala.slick.driver.JdbcDriver.simple._
 import scala.slick.lifted.Query
 import scala.slick.lifted._
-import scala.slick.session.Database.threadLocalSession
+import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
 
 @Api(value = "/list", description = "List operations")
 object List extends Controller with Secured {
@@ -77,7 +77,7 @@ object List extends Controller with Secured {
         UserService.findByEmail(username).map { user =>
           Promise.pure(
             render {
-              case Accepts.Json() => Ok(Json.toJson(MailinglistService.findAll))
+              case Accepts.Json() => Ok(Json.toJson(MailinglistService.table.list()))
             })
         }.getOrElse(Promise.pure(Forbidden))
       }
@@ -97,7 +97,9 @@ object List extends Controller with Secured {
       try {
         request.body.asJson.map { json =>
           json.validate(models.Mailinglist.fmt).map { m =>
-            if (Mailinglists.insertOne(Mailinglist(None, m.email, m.email)).id > 0) {
+            if (MailinglistService.table.insert(
+                Mailinglist(MailinglistId(-1), m.email, m.email)
+            ) > 0) {
               Ok(Json.toJson(m))
             } else {
               BadRequest("Error creating new list")
@@ -191,7 +193,8 @@ object List extends Controller with Secured {
     @ApiParam(value = "Email of the mailing list to delete")@PathParam("email") email: String) = IsAuthenticated { username =>
     _ => {
       // TODO test this
-      Option(Query(Mailinglists).where(_.email === email).mutate(_.delete)) match {
+      val d = MailinglistService.table.where(_.email === email).mutate(_.delete)
+      Option(d) match {
         case Some(value) => Ok(Json.toJson(email))
         case None => BadRequest("List not found")
       }

@@ -1,15 +1,20 @@
 package service
 
 import models._
-import play.api.db.slick.Config.driver.simple._
-import org.virtuslab.unicorn.ids.services._
+
+import scala.slick.driver.JdbcDriver.simple._
+import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
 
 /**
  * Queries for Mailinglists.
- * It brings all base queries with it from [[org.virtuslab.unicorn.ids.services.BaseIdQueries]], but you can add yours as well.
  */
-trait MailinglistQueries extends BaseIdQueries[MailinglistId, Mailinglist] {
-  override def table = Mailinglists
+trait MailinglistQueries {
+  def table = TableQuery[Mailinglists]
+
+  protected lazy val byIdQuery = for {
+    id <- Parameters[MailinglistId]
+    o <- table if o.id === id
+  } yield o
 
   /**
    *
@@ -24,8 +29,8 @@ trait MailinglistQueries extends BaseIdQueries[MailinglistId, Mailinglist] {
    */
   protected lazy val byTypeaheadQuery = for {
     typeahead <- Parameters[String]
-    Mailinglist <- Mailinglists if Mailinglist.email like s"%$typeahead%"
-  } yield Mailinglist
+    o <- table if (o.email like s"%$typeahead%")
+  } yield o
 }
 
 /**
@@ -35,7 +40,7 @@ trait MailinglistQueries extends BaseIdQueries[MailinglistId, Mailinglist] {
  *
  * It's a trait, so you can use your favourite DI method to instantiate/mix it to your application.
  */
-trait MailinglistService extends BaseIdService[MailinglistId, Mailinglist] with MailinglistQueries {
+trait MailinglistService extends MailinglistQueries {
 
   /**
    * Finds one element by email.
@@ -52,7 +57,7 @@ trait MailinglistService extends BaseIdService[MailinglistId, Mailinglist] with 
    */
   def findByEmailWithUsers(email: String)(implicit session: Session) =
     (for {
-      m <- Mailinglists if m.email === email
+      m <- table if m.email === email
       u <- m.users
     } yield Tuple2(m, u))
   
@@ -61,7 +66,7 @@ trait MailinglistService extends BaseIdService[MailinglistId, Mailinglist] with 
    */
   def getRecipientsForList(email: String)(implicit session: Session) =
     (for {
-      m <- Mailinglists if m.email === email
+      m <- table if m.email === email
       u <- m.users
     } yield u.email)
     

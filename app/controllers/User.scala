@@ -12,9 +12,9 @@ import org.omg.CosNaming.NamingContextPackage.NotFound
 import com.wordnik.swagger.annotations.ApiOperation
 
 // Use H2Driver to connect to an H2 database
-import scala.slick.driver.H2Driver.simple._
-import scala.slick.lifted.Query
-import scala.slick.session.Database.threadLocalSession
+import scala.slick.driver.JdbcDriver.simple._
+import scala.slick.lifted._
+import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
 
 import javax.ws.rs.{ QueryParam, PathParam }
 
@@ -57,7 +57,7 @@ object User extends Controller with Secured {
    */
   @ApiOperation(value = "Get users", notes = "Returns all users", httpMethod = "GET")
   def list = Authenticated { implicit request =>
-    Ok(Json.toJson(UserService.findAll))
+    Ok(Json.toJson(UserService.table.list()))
 //    implicit request =>
 //      Async {
 //        models.User.findByEmail(username).map { user =>
@@ -80,7 +80,7 @@ object User extends Controller with Secured {
     try {
       request.body.asJson.map { json =>
         json.validate(models.User.fmt).map { m =>
-          if (Users.insertOne(m).id > 0) {
+          if (UserService.table.insert(m) > 0) {
             Ok(Json.toJson(m))
           } else {
             BadRequest("Error creating user")
@@ -112,12 +112,12 @@ object User extends Controller with Secured {
     new ApiResponse(code = 404, message = "User not found")
   ))
   def delete(
-    @ApiParam(value = "Id of the user to delete")@PathParam("id") id: UserId)
+    @ApiParam(value = "Id of the user to delete")@PathParam("id") id: Long)
       = Authenticated { username =>
-        if (UserService.deleteById(id) == 1) {
-          Ok(Json.toJson(id))
-        } else {
-          BadRequest(Json.toJson("User not found"))
+        val d = UserService.table.where(_.id === UserId(id)).mutate(_.delete)
+        Option(d) match {
+          case Some(value) => Ok(Json.toJson(id))
+          case None => BadRequest(Json.toJson("User not found"))
         }
   }
 

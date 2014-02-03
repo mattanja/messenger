@@ -31,7 +31,7 @@ GET      /data/user/list               controllers.User.list
 POST     /data/user/create             controllers.User.create
 GET      /data/user/detail/:email      controllers.User.detail(email: String)
 POST     /data/user/update/:email      controllers.User.update(email: String)
-POST     /data/user/delete/:id         controllers.User.delete(id: models.UserId)
+POST     /data/user/delete/:id         controllers.User.delete(id: Long)
 POST     /data/user/getUserTypeahead   controllers.User.getUserTypeahead
 
 # Map static resources from the /public folder to the /assets URL path

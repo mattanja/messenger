@@ -22,9 +22,8 @@ import models.Mailinglist
 import com.typesafe.plugin._
 
 import service.MailinglistService
-import scala.slick.driver.H2Driver.simple._
-import Database.threadLocalSession
-import scala.slick.lifted.Query
+import scala.slick.driver.JdbcDriver.simple._
+import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
 
 // For a more advanced message handling, check https://code.google.com/p/subetha/source/browse/trunk/src/org/subethamail/core/smtp/SMTPHandler.java
 

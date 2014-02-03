@@ -5,7 +5,7 @@ import models.User
 import play.api.test._
 import play.api.test.Helpers._
 import service.UserService
-import scala.slick.session.Database.threadLocalSession
+import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
 
 trait DBFake {
   val memoryDB = inMemoryDatabase("test")
@@ -35,7 +35,7 @@ class UserSpec extends Specification with DBFake {
 
     "should retrieve all users" in running(fake) {
       val expected = Set("kuhnen", "andre", "matt", "test")
-      UserService.findAll.map(_.name).toSet must beEqualTo(expected)
+      UserService.table.map(_.name) must beEqualTo(expected)
     }
 
     "should authenticate if exists" in running(fake) {
@@ -51,12 +51,12 @@ class UserSpec extends Specification with DBFake {
     }
 
     "should create user if does not exist" in running(fake) {
-      val user = User(None, "new@new.com.br", "new", "secret")
+      val user = User(UserId(-1), "new@new.com.br", "new", "secret")
       UserService.save(user).id must beGreaterThan(0L)
     }
 
     "should not create if email exist " in running(fake) {
-      val user = User(None, "andre@terra.com.br", "asdandre", "secret")
+      val user = User(UserId(-1), "andre@terra.com.br", "asdandre", "secret")
       UserService.save(user).id must beGreaterThan(0L)
     }
   }

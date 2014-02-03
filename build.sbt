@@ -14,9 +14,9 @@ libraryDependencies ++= Seq(
   ("org.apache.commons" % "commons-email" % "1.2"),
   ("org.apache.james" % "apache-mime4j" % "0.7.2"),
   ("com.google.guava" % "guava" % "14.0.1"),
-  ("com.typesafe.slick" %% "slick" % "1.0.1"),
-  ("com.typesafe.play" %% "play-slick" % "0.5.0.8"),
-  ("org.virtuslab" %% "unicorn" % "0.4"),
+  ("com.typesafe.slick" %% "slick" % "2.0.0"),
+  ("com.typesafe.play" %% "play-slick" % "0.6.0-SNAPSHOT"),
+  //("org.virtuslab" %% "unicorn" % "0.4"),
   ("mysql" % "mysql-connector-java" % "5.1.21"), // MySQL for cloudbees deployment
   ("com.h2database" % "h2" % "1.3.166"),
   // Swagger API docs https://github.com/wordnik/swagger-core/tree/master/modules/swagger-play2

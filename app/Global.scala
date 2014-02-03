@@ -7,9 +7,7 @@ import play.api.db.DB
 import play.api.Play.current
 
 // Database
-import scala.slick.driver.H2Driver.simple._
-import Database.threadLocalSession
-import scala.slick.lifted.Query
+import scala.slick.driver.JdbcDriver.simple._
 
 object Global extends GlobalSettings {
 
@@ -51,36 +49,40 @@ object Global extends GlobalSettings {
 
   def date(str: String) = new java.text.SimpleDateFormat("yyyy-MM-dd").parse(str)
 
+  //val db = Database.forURL(url, driver = "org.h2.Driver")
+
   def insert() = {
-    Database.forDataSource(DB.getDataSource()) .withSession {
+    Database.forURL("jdbc:mysql://localhost/messenger?characterEncoding=UTF-8") withSession {
+      implicit session =>
+
   	  object UserService extends UserService
 
   	  // Check for empty table
-      if ((for{mt <- Users} yield mt).firstOption.isDefined) {
+      if ((for{mt <- UserService.table} yield mt).firstOption.isDefined) {
         Logger.trace("Inserting initial user data...")
-        Users.insertAll(
-            (User(None, "user1@kernetics.de", "User 1", "secret")),
-            (User(None, "user2@kernetics.de", "User 2", "secret")),
-            (User(None, "user3@kernetics.de", "User 3", "secret")),
-            (User(None, "user4@kernetics.de", "User 4", "secret"))
+        UserService.table.insertAll(
+            User(UserId(-1), "user1@kernetics.de", "User 1", "secret"),
+            User(UserId(-1), "user2@kernetics.de", "User 2", "secret"),
+            User(UserId(-1), "user3@kernetics.de", "User 3", "secret"),
+            User(UserId(-1), "user4@kernetics.de", "User 4", "secret")
         )
 
-        if ((for {l <- Mailinglists} yield l).firstOption.isDefined) {
+        if ((for {l <- TableQuery[Mailinglists]} yield l).firstOption.isDefined) {
           Logger.trace("Inserting initial list data...")
-          Mailinglists.insertAll(
-            Mailinglist(None, "list1@kernetics.de", "list1@kernetics.de"),
-            Mailinglist(None, "list2@kernetics.de", "list2@kernetics.de"),
-            Mailinglist(None, "list3@kernetics.de", "list3@kernetics.de"),
-            Mailinglist(None, "list4@kernetics.de", "list4@kernetics.de")
+          TableQuery[Mailinglists].insertAll(
+            Mailinglist(MailinglistId(-1), "list1@kernetics.de", "list1@kernetics.de"),
+            Mailinglist(MailinglistId(-1), "list2@kernetics.de", "list2@kernetics.de"),
+            Mailinglist(MailinglistId(-1), "list3@kernetics.de", "list3@kernetics.de"),
+            Mailinglist(MailinglistId(-1), "list4@kernetics.de", "list4@kernetics.de")
             )
 
           Logger.trace("Inserting initial list membership data...")
           val q1 = for {
-            l <- Mailinglists
-            u <- Users
+            l <- TableQuery[Mailinglists]
+            u <- TableQuery[Users]
           } yield (l.id, u.id)
-          q1.foreach(x => MailinglistMemberships.insertOne(
-              MailinglistMembership(None, x._1, x._2, true, true)))
+          q1.foreach(x => TableQuery[MailinglistMemberships].insert(
+              MailinglistMembership(x._1, x._2, true, true)))
         }
       }
     }

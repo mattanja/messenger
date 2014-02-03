@@ -1,15 +1,14 @@
 package service
 
 import models._
-import play.api.db.slick.Config.driver.simple._
-import org.virtuslab.unicorn.ids.services._
+import scala.slick.driver.JdbcDriver.simple._
+import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
 
 /**
  * Queries for users.
- * It brings all base queries with it from [[org.virtuslab.unicorn.ids.services.BaseIdQueries]], but you can add yours as well.
  */
-trait UserQueries extends BaseIdQueries[UserId, User] {
-  override def table = Users
+trait UserQueries {
+  def table = TableQuery[Users]
 
   /**
    *
@@ -24,18 +23,15 @@ trait UserQueries extends BaseIdQueries[UserId, User] {
    */
   protected lazy val byTypeaheadQuery = for {
     typeahead <- Parameters[String]
-    user <- Users if user.email like s"%$typeahead%"
+    user <- table if user.email like s"%$typeahead%"
   } yield user
 }
 
 /**
  * Service for users.
- *
- * It brings all base service methods with it from [[org.virtuslab.unicorn.ids.services.BaseIdService]], but you can add yours as well.
- *
  * It's a trait, so you can use your favourite DI method to instantiate/mix it to your application.
  */
-trait UserService extends BaseIdService[UserId, User] with UserQueries {
+trait UserService extends UserQueries {
 
   /**
    * Finds one element by email.
@@ -55,5 +51,5 @@ trait UserService extends BaseIdService[UserId, User] with UserQueries {
    *
    */
   def authenticate(email: String, password: String)(implicit session: Session): Option[User]
-    = Query(Users).filter(_.email === email).filter(_.password === password).firstOption
+    = table.filter(_.email === email).filter(_.password === password).firstOption
 }

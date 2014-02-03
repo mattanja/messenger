@@ -10,7 +10,7 @@ import play.api.libs.json._
 import models._
 import service._
 
-import scala.slick.session.Database.threadLocalSession
+import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
 
 trait Application extends Controller with Secured {
   this: Controller =>

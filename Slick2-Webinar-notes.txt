@@ -1,0 +1,20 @@
+
+
+Session-handling:
+Play: Top-level DB object
+
+Driver-Independence: JdbcProfile -> SqlProfile -> RelationalProfile -> BasicProfile
+--> Use JdbcProfile
+
+Question:
+What is the best way for session handling and database-independent imports for Slick2 in a play application?
+--> Almost answered earlier.
+
+Debugging / query logging
+-> logger: scala.slick.jdbc.JdbcBackend.statement
+-> .getStatement from query
+
+What's the best way to create a MappedTypeMapper for the MappedTo[Int] class in play (for mapping an Id in a route)?
+
+james.ward@typesafe.com
+google list scalaquery / slick

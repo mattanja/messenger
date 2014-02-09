@@ -23,7 +23,7 @@ angular.module('messengerApp', ['ui.bootstrap'])
 
 	$scope.init = function() {
 		$scope.lists = [];
-		$scope.newMailinglist = { email: "", members: [], };
+		$scope.newMailinglist = { id: {value:0}, email: "", name: "", members: [], };
 
 		// Load the data
 		$http.get('/data/list/list').then(function(response) {
@@ -50,7 +50,7 @@ angular.module('messengerApp', ['ui.bootstrap'])
 			// Success
 			var responseData = response.data;
 			$scope.lists.push(responseData.email);
-			$scope.newMailinglist = { email: "", members: [], };
+			$scope.newMailinglist = { id: {value:0}, email: "", name: "", members: [], };
 			notify.info("success response code");
 		}, function(response) {
 			// Error
@@ -147,7 +147,7 @@ angular.module('messengerApp', ['ui.bootstrap'])
 // UserController
 .controller('UserController', function($scope, $http, notify) {
 	// Initial data & members
-	$scope.newUser = { id: 0, email: "", name: "", password: "" };
+	$scope.newUser = { id: {value:0}, email: "", name: "", password: "" };
 
 	// Async get of user data
 	$http.get('/data/user/list').then(function(res) {
@@ -166,7 +166,7 @@ angular.module('messengerApp', ['ui.bootstrap'])
 			// Success
 			var responseData = response.data;
 			$scope.users.push(responseData);
-			$scope.newUser = { id: 0, email: "", name: "", password: "" };
+			$scope.newUser = { id: {value:0}, email: "", name: "", password: "" };
 			notify.info("success response code");
 		}, function(response) {
 			// Error
@@ -181,7 +181,7 @@ angular.module('messengerApp', ['ui.bootstrap'])
 
 	$scope.deleteUser = function(user) {
 		var data = {};
-		$http.post('/data/user/delete/' + user.id, data).then(function(response) {
+		$http.post('/data/user/delete/' + user.id.value, data).then(function(response) {
 			// Success
 			var responseData = response.data;
 

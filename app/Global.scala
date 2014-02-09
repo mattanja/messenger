@@ -1,7 +1,6 @@
 import play.api._
 import models._
 import service._
-import anorm._
 import org.subethamail.smtp.server._
 import play.api.db.DB
 import play.api.Play.current
@@ -52,39 +51,40 @@ object Global extends GlobalSettings {
   //val db = Database.forURL(url, driver = "org.h2.Driver")
 
   def insert() = {
-    Database.forURL("jdbc:mysql://localhost/messenger?characterEncoding=UTF-8") withSession {
-      implicit session =>
+    // problem somewhere in the next two lines - "no-symbol does not have an owner"
+    //  play.api.db.slick.DB.withSession {
+    //   implicit session =>
 
-  	  object UserService extends UserService
+  	 //  object UserService extends UserService
 
-  	  // Check for empty table
-      if ((for{mt <- UserService.table} yield mt).firstOption.isDefined) {
-        Logger.trace("Inserting initial user data...")
-        UserService.table.insertAll(
-            User(UserId(-1), "user1@kernetics.de", "User 1", "secret"),
-            User(UserId(-1), "user2@kernetics.de", "User 2", "secret"),
-            User(UserId(-1), "user3@kernetics.de", "User 3", "secret"),
-            User(UserId(-1), "user4@kernetics.de", "User 4", "secret")
-        )
+  	 //  // Check for empty table
+    //   if ((for{mt <- UserService.table} yield mt).firstOption.isDefined) {
+    //     Logger.trace("Inserting initial user data...")
+    //     UserService.table.insertAll(
+    //         User(UserId(-1), "user1@kernetics.de", "User 1", "secret"),
+    //         User(UserId(-1), "user2@kernetics.de", "User 2", "secret"),
+    //         User(UserId(-1), "user3@kernetics.de", "User 3", "secret"),
+    //         User(UserId(-1), "user4@kernetics.de", "User 4", "secret")
+    //     )
 
-        if ((for {l <- TableQuery[Mailinglists]} yield l).firstOption.isDefined) {
-          Logger.trace("Inserting initial list data...")
-          TableQuery[Mailinglists].insertAll(
-            Mailinglist(MailinglistId(-1), "list1@kernetics.de", "list1@kernetics.de"),
-            Mailinglist(MailinglistId(-1), "list2@kernetics.de", "list2@kernetics.de"),
-            Mailinglist(MailinglistId(-1), "list3@kernetics.de", "list3@kernetics.de"),
-            Mailinglist(MailinglistId(-1), "list4@kernetics.de", "list4@kernetics.de")
-            )
+    //     if ((for {l <- TableQuery[Mailinglists]} yield l).firstOption.isDefined) {
+    //       Logger.trace("Inserting initial list data...")
+    //       TableQuery[Mailinglists].insertAll(
+    //         Mailinglist(MailinglistId(-1), "list1@kernetics.de", "list1@kernetics.de"),
+    //         Mailinglist(MailinglistId(-1), "list2@kernetics.de", "list2@kernetics.de"),
+    //         Mailinglist(MailinglistId(-1), "list3@kernetics.de", "list3@kernetics.de"),
+    //         Mailinglist(MailinglistId(-1), "list4@kernetics.de", "list4@kernetics.de")
+    //         )
 
-          Logger.trace("Inserting initial list membership data...")
-          val q1 = for {
-            l <- TableQuery[Mailinglists]
-            u <- TableQuery[Users]
-          } yield (l.id, u.id)
-          q1.foreach(x => TableQuery[MailinglistMemberships].insert(
-              MailinglistMembership(x._1, x._2, true, true)))
-        }
-      }
-    }
+    //       Logger.trace("Inserting initial list membership data...")
+    //       val q1 = for {
+    //         l <- TableQuery[Mailinglists]
+    //         u <- TableQuery[Users]
+    //       } yield (l.id, u.id)
+    //       q1.foreach(x => TableQuery[MailinglistMemberships].insert(
+    //           MailinglistMembership(x._1, x._2, true, true)))
+    //     }
+    //   }
+    // }
   }
 }

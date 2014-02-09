@@ -11,7 +11,7 @@ import play.api.mvc.{ QueryStringBindable, PathBindable }
 import scala.slick.driver.JdbcDriver.simple._
 
 /** Id class for type-safe joins and queries. */
-case class UserId(id: Long) extends MappedTo[Long]
+case class UserId(value: Long) extends MappedTo[Long]
 
 object UserId {
   implicit val fmt = Json.format[UserId]

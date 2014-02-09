@@ -8,7 +8,7 @@ import play.api.libs.json._
 // DB
 import scala.slick.driver.MySQLDriver.simple._
 
-case class MailinglistId(id: Long) extends MappedTo[Long]
+case class MailinglistId(value: Long) extends MappedTo[Long]
 
 object MailinglistId {
   implicit val fmt = Json.format[MailinglistId]

@@ -15,10 +15,10 @@ trait Secured {
    * http://www.playframework.com/documentation/2.2.x/api/scala/index.html#play.api.mvc.Security$$AuthenticatedBuilder$
    */
   object Authenticated extends AuthenticatedBuilder(req => None)
-  
+
   /**
    * Retrieve the connected user email.
-   * 
+   *
    * @param request
    */
   private def username(request: RequestHeader) = request.session.get("email")

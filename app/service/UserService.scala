@@ -17,14 +17,6 @@ trait UserQueries {
     email <- Parameters[String]
     o <- table if o.email === email
   } yield o
-
-  /**
-   *
-   */
-  protected lazy val byTypeaheadQuery = for {
-    typeahead <- Parameters[String]
-    user <- table if user.email like s"%$typeahead%" 
-  } yield user
 }
 
 /**
@@ -45,7 +37,13 @@ trait UserService extends UserQueries {
   /**
    *
    */
-  def findByTypeahead(typeahead: String)(implicit session: Session): Seq[User] = byTypeaheadQuery(typeahead).list
+  def findByTypeahead(typeahead: String)(implicit session: Session): Seq[User] =
+  {
+	for {
+		//typeahead <- Parameters[String]
+		user <- table if user.email like s"%$typeahead%" //s"%$typeahead%" 
+	} yield user
+  }.list
 
   /**
    *

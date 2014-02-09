@@ -2,6 +2,7 @@ package service
 
 import models._
 import scala.slick.driver.H2Driver.simple._
+import play.api._
 
 /**
  * Queries for users.
@@ -22,7 +23,7 @@ trait UserQueries {
    */
   protected lazy val byTypeaheadQuery = for {
     typeahead <- Parameters[String]
-    user <- table if user.email like s"%$typeahead%"
+    user <- table if user.email like s"%$typeahead%" 
   } yield user
 }
 

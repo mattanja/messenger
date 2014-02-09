@@ -8,9 +8,9 @@
     	<h1>Lists</h1>
 
 		<ul>
-			<li ng-repeat="listemail in lists">
-				<span><a href="/list/{{listemail}}">{{listemail}}</a></span>
-				<span class="btn" ng-click="deleteList(listemail)">Delete list</span>
+			<li ng-repeat="list in lists">
+				<span><a href="/list/{{list.email}}">{{list.email}}</a></span>
+				<span class="btn" ng-click="deleteList(list.email)">Delete list</span>
 			</li>
 		</ul>
 

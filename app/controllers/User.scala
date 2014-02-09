@@ -124,7 +124,8 @@ object User extends BaseController with Secured {
     try {
       request.body.asJson.map { json =>
         val typeahead = (json \ "typeahead").as[String]
-        Ok(Json.toJson(UserService.findByTypeahead(typeahead)))
+        Logger.info("typeahead search: " + typeahead)
+        Ok(Json.toJson(UserService.findByTypeahead(typeahead).map{_.email}))
       }.getOrElse(BadRequest("second json"))
     } catch {
       case e: Exception => BadRequest(e.toString())

@@ -1,8 +1,7 @@
 package service
 
 import models._
-import scala.slick.driver.JdbcDriver.simple._
-import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
+import play.api.db.slick.Config.driver.simple._
 
 /**
  * Queries for users.

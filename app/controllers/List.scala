@@ -33,10 +33,9 @@ import com.wordnik.swagger.core.util.ScalaJsonUtil
 import scala.slick.driver.JdbcDriver.simple._
 import scala.slick.lifted.Query
 import scala.slick.lifted._
-import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
 
 @Api(value = "/list", description = "List operations")
-object List extends Controller with Secured {
+object List extends BaseController with Secured {
 
   object UserService extends UserService
   object MailinglistService extends MailinglistService

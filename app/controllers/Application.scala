@@ -7,12 +7,11 @@ import play.api.data.Forms._
 import play.api.libs.concurrent._
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
+import play.api.Play.current
 import models._
 import service._
 
-import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
-
-trait Application extends Controller with Secured {
+trait Application extends BaseController {
   this: Controller =>
 
   object UserService extends UserService
@@ -28,25 +27,15 @@ trait Application extends Controller with Secured {
     }
   }
 
-  /**
-   * Sample / testing
-   *
-   * JSON user data
-   *
-   */
-  def test() = IsAuthenticated { username => implicit request =>
-    UserService.findByEmail(username).map { user =>
-      Ok(Json.toJson(user))
-    }.getOrElse(Forbidden)
-  }
-
   // -- Authentication
 
   val loginForm = Form(
     tuple(
       "email" -> text,
       "password" -> text) verifying ("Invalid email or password", result => result match {
-        case (email, password) => UserService.authenticate(email, password).isDefined
+        case (email, password) => play.api.db.slick.DB.withSession { implicit session =>
+          UserService.authenticate(email, password).isDefined
+        }
       }))
 
   /**

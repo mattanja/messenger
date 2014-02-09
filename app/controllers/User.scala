@@ -14,14 +14,13 @@ import com.wordnik.swagger.annotations.ApiOperation
 // Use H2Driver to connect to an H2 database
 import scala.slick.driver.JdbcDriver.simple._
 import scala.slick.lifted._
-import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
 
 import javax.ws.rs.{ QueryParam, PathParam }
 
 import com.wordnik.swagger.annotations._
 
 @Api(value = "/user", description = "User operations")
-object User extends Controller with Secured {
+object User extends BaseController with Secured {
 
   object UserService extends UserService
 

@@ -2,10 +2,10 @@ import play.api._
 import models._
 import service._
 import org.subethamail.smtp.server._
-import play.api.db.DB
 import play.api.Play.current
 
 // Database
+import play.api.db.slick.DB
 import scala.slick.driver.JdbcDriver.simple._
 
 object Global extends GlobalSettings {
@@ -51,6 +51,12 @@ object Global extends GlobalSettings {
   //val db = Database.forURL(url, driver = "org.h2.Driver")
 
   def insert() = {
+    
+    DB.withSession {
+      implicit session => {
+        
+      }
+    }
     // problem somewhere in the next two lines - "no-symbol does not have an owner"
     //  play.api.db.slick.DB.withSession {
     //   implicit session =>

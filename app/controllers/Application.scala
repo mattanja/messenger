@@ -11,6 +11,9 @@ import play.api.Play.current
 import models._
 import service._
 
+// DB
+import scala.slick.driver.H2Driver.simple._
+
 trait Application extends BaseController {
   this: Controller =>
 

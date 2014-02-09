@@ -22,8 +22,7 @@ import models.Mailinglist
 import com.typesafe.plugin._
 
 import service.MailinglistService
-import scala.slick.driver.JdbcDriver.simple._
-import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
+import scala.slick.driver.H2Driver.simple._
 
 // For a more advanced message handling, check https://code.google.com/p/subetha/source/browse/trunk/src/org/subethamail/core/smtp/SMTPHandler.java
 
@@ -43,19 +42,21 @@ class MessengerMessageHandlerFactory extends SimpleMessageListenerAdapter(new Me
 class MessengerSimpleMessageListener extends SimpleMessageListener {
 
   object MailinglistService extends MailinglistService
-  
+
   /**
    * Implementation of org.subethamail.smtp.helper.SimpleMessageListener.accept
    *
    * Check if mailinglist exists.
    */
   def accept(from: String, recipient: String): Boolean = {
-    if (MailinglistService.findByEmail(recipient).nonEmpty) {
-      Logger.info("Receiving message from: " + from + " for recipient: " + recipient + " found mailinglist.")
-      true
-    } else {
-      Logger.info("Receiving message from: " + from + " for recipient: " + recipient + " mailinglist not found.")
-      false
+    play.api.db.slick.DB.withSession { implicit session =>
+      if (MailinglistService.findByEmail(recipient).nonEmpty) {
+        Logger.info("Receiving message from: " + from + " for recipient: " + recipient + " found mailinglist.")
+        true
+      } else {
+        Logger.info("Receiving message from: " + from + " for recipient: " + recipient + " mailinglist not found.")
+        false
+      }
     }
   }
 
@@ -63,19 +64,21 @@ class MessengerSimpleMessageListener extends SimpleMessageListener {
    * Implementation of org.subethamail.smtp.helper.SimpleMessageListener.deliver
    */
   def deliver(from: String, recipient: String, data: InputStream): Unit = {
-    //Here send the message to be parsed
-    //then creates all the necessary copies,  Another actor
-    //then send all the messages
+    play.api.db.slick.DB.withSession { implicit session =>
+      //Here send the message to be parsed
+      //then creates all the necessary copies,  Another actor
+      //then send all the messages
 
-    // TODO: Send mail to members of mailinglist with the name of "recipient"
-    // val members = MailinglistMembers.findByMailinglist(recipient)
-    // foreach member send mail
-    // MailinglistMembership.
-    // Just for testing: Return message to sender
-  	val members = MailinglistService.getRecipientsForList(recipient)
-  	val emailContents = EmailContents(data);
-  	members foreach (sendMail(_, from, emailContents))
-  	data.close()
+      // TODO: Send mail to members of mailinglist with the name of "recipient"
+      // val members = MailinglistMembers.findByMailinglist(recipient)
+      // foreach member send mail
+      // MailinglistMembership.
+      // Just for testing: Return message to sender
+    	val members = MailinglistService.getRecipientsForList(recipient)
+    	val emailContents = EmailContents(data);
+    	members foreach (sendMail(_, from, emailContents))
+    	data.close()
+    }
   }
 
   def sendMail(from: String, to: String, emailContents: EmailContents) {

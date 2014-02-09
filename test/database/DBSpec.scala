@@ -18,9 +18,9 @@ trait DBFake {
 }
 
 class UserSpec extends Specification with DBFake {
-  
+
   object UserService extends UserService
-  
+
   "User" should {
     "be retrieved by id(email)" in running(fake) {
       val Some(user) = UserService.findByEmail("kuhnen@terra.com.br")

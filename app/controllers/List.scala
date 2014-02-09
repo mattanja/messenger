@@ -30,7 +30,7 @@ import com.wordnik.swagger.annotations._
 import com.wordnik.swagger.core.util.ScalaJsonUtil
 
 // Use H2Driver to connect to an H2 database
-import scala.slick.driver.JdbcDriver.simple._
+import scala.slick.driver.H2Driver.simple._
 import scala.slick.lifted.Query
 import scala.slick.lifted._
 
@@ -39,7 +39,7 @@ object List extends BaseController with Secured {
 
   object UserService extends UserService
   object MailinglistService extends MailinglistService
-  
+
   /**
    * Define the form object (kind of "view model")
    * http://www.playframework.com/documentation/2.1.0/ScalaForms
@@ -167,7 +167,7 @@ object List extends BaseController with Secured {
                   // TODO
                   //MailinglistMembership.delete(m.email, member)
                 }
-                
+
                 //Ok(Json.toJson(new ListUpdateResponse(MailinglistService.findByEmailWithUsers(email))))
                 Ok(Json.toJson(new ListUpdateResponse(
                   MailinglistService.findByEmail(email).map { u =>
@@ -197,11 +197,11 @@ object List extends BaseController with Secured {
         case Some(value) => Ok(Json.toJson(email))
         case None => BadRequest("List not found")
       }
-        
+
 //      MailinglistService.findByEmail(email).map { listToDelete =>
 //        //models.Mailinglist.delete(listToDelete.email)
 //        (Ok(Json.toJson(listToDelete)))
-//        
+//
 //      }.getOrElse(BadRequest("List not found"))
     }
   }

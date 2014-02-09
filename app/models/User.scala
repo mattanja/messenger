@@ -7,7 +7,6 @@ import play.api.libs.json._
 import play.api.mvc.{ QueryStringBindable, PathBindable }
 
 // DB
-//import scala.slick.lifted.{MappedTypeMapper,BaseTypeMapper,TypeMapperDelegate}
 import scala.slick.driver.H2Driver.simple._
 
 /** Id class for type-safe joins and queries. */

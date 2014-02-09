@@ -2,8 +2,7 @@ package service
 
 import models._
 
-import scala.slick.driver.JdbcDriver.simple._
-import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
+import scala.slick.driver.H2Driver.simple._
 
 /**
  * Queries for Mailinglists.
@@ -60,7 +59,7 @@ trait MailinglistService extends MailinglistQueries {
       m <- table if m.email === email
       u <- m.users
     } yield Tuple2(m, u))
-  
+
   /**
    * Get all recipients email addresses for the given list.
    */
@@ -69,7 +68,7 @@ trait MailinglistService extends MailinglistQueries {
       m <- table if m.email === email
       u <- m.users
     } yield u.email)
-    
+
   /**
    *
    */

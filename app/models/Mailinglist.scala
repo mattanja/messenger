@@ -6,7 +6,7 @@ import play.api.Logger
 import play.api.libs.json._
 
 // DB
-import scala.slick.driver.MySQLDriver.simple._
+import scala.slick.driver.H2Driver.simple._
 
 case class MailinglistId(value: Long) extends MappedTo[Long]
 

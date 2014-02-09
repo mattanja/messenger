@@ -1,7 +1,7 @@
 package service
 
 import models._
-import play.api.db.slick.Config.driver.simple._
+import scala.slick.driver.H2Driver.simple._
 
 /**
  * Queries for users.

@@ -25,8 +25,8 @@ class MailinglistMemberships(tag: Tag) extends Table[MailinglistMembership](tag,
   def userId = column[UserId]("UserId", O.PrimaryKey)
   def isApproved = column[Boolean]("IsApproved")
   def isActive = column[Boolean]("IsActive")
-  def mailinglistFK = foreignKey("fk_MailinglistMembership_MailinglistId", mailinglistId, TableQuery[Mailinglists])(_.id)
-  def userFK = foreignKey("fk_MailinglistMembership_UserId", userId, TableQuery[Users])(_.id)
+  def mailinglistFK = foreignKey("fk_MailinglistMembership_MailinglistId", mailinglistId, Models.mailinglists)(_.id)
+  def userFK = foreignKey("fk_MailinglistMembership_UserId", userId, Models.users)(_.id)
 
   val createMailinglistMembership = MailinglistMembership.apply _
   def * = (mailinglistId, userId, isApproved, isActive) <> (createMailinglistMembership.tupled, MailinglistMembership.unapply)

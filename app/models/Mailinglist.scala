@@ -18,7 +18,10 @@ case class Mailinglist(
   id: MailinglistId,
   email: String,
   name: String
-)
+) {
+  def memberships = Models.mailinglistMemberships.filter(_.mailinglistId === id)
+  def users = Models.mailinglistMemberships.filter(_.mailinglistId === id).flatMap(_.userFK)
+}
 
 object Mailinglist {
   implicit val fmt = Json.format[Mailinglist]
@@ -32,6 +35,6 @@ class Mailinglists(tag: Tag) extends Table[Mailinglist](tag, "Mailinglists") {
   val createMailinglist = Mailinglist.apply _
   def * = (id, email, name) <> (createMailinglist.tupled, Mailinglist.unapply)
 
-  def memberships = TableQuery[MailinglistMemberships].filter(_.mailinglistId === id)
-  def users = TableQuery[MailinglistMemberships].filter(_.mailinglistId === id).flatMap(_.userFK)
+  def memberships = Models.mailinglistMemberships.filter(_.mailinglistId === id)
+  def users = Models.mailinglistMemberships.filter(_.mailinglistId === id).flatMap(_.userFK)
 }

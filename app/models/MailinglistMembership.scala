@@ -7,7 +7,7 @@ import play.api.libs.json._
 import play.api.db.DB
 
 // DB
-import scala.slick.driver.JdbcDriver.simple._
+import scala.slick.driver.H2Driver.simple._
 
 case class MailinglistMembership(
   mailinglistId: MailinglistId,

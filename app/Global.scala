@@ -55,12 +55,14 @@ object Global extends GlobalSettings {
 
     DB.withSession {
       implicit session => {
-        object UserService extends UserService
+        //object UserService extends UserService
+
+        val users = TableQuery[Users]
 
         // Check for empty table
-        if (!(for{mt <- UserService.table} yield mt).firstOption.isDefined) {
+        if (!(for{mt <- users} yield mt).firstOption.isDefined) {
           Logger.trace("Inserting initial user data...")
-          UserService.table.insertAll(
+          users.insertAll(
             User(UserId(-1), "user1@kernetics.de", "User 1", "secret"),
             User(UserId(-1), "user2@kernetics.de", "User 2", "secret"),
             User(UserId(-1), "user3@kernetics.de", "User 3", "secret"),
@@ -68,25 +70,23 @@ object Global extends GlobalSettings {
           )
         }
 
-//     if ((for {l <- TableQuery[Mailinglists]} yield l).firstOption.isDefined) {
-//       Logger.trace("Inserting initial list data...")
-//       TableQuery[Mailinglists].insertAll(
-//         Mailinglist(MailinglistId(-1), "list1@kernetics.de", "list1@kernetics.de"),
-//         Mailinglist(MailinglistId(-1), "list2@kernetics.de", "list2@kernetics.de"),
-//         Mailinglist(MailinglistId(-1), "list3@kernetics.de", "list3@kernetics.de"),
-//         Mailinglist(MailinglistId(-1), "list4@kernetics.de", "list4@kernetics.de")
-//         )
+        val mailinglists = TableQuery[Mailinglists]
+        if (!(for {l <- mailinglists} yield l).firstOption.isDefined) {
+          Logger.trace("Inserting initial list data...")
+          mailinglists.insertAll(
+            Mailinglist(MailinglistId(-1), "list1@kernetics.de", "list1@kernetics.de"),
+            Mailinglist(MailinglistId(-1), "list2@kernetics.de", "list2@kernetics.de"),
+            Mailinglist(MailinglistId(-1), "list3@kernetics.de", "list3@kernetics.de"),
+            Mailinglist(MailinglistId(-1), "list4@kernetics.de", "list4@kernetics.de")
+          )
 
-//       Logger.trace("Inserting initial list membership data...")
-//       val q1 = for {
-//         l <- TableQuery[Mailinglists]
-//         u <- TableQuery[Users]
-//       } yield (l.id, u.id)
-//       q1.foreach(x => TableQuery[MailinglistMemberships].insert(
-//           MailinglistMembership(x._1, x._2, true, true)))
-//     }
-//   }
-// }
+          val memberships = TableQuery[MailinglistMemberships]
+          Logger.trace("Inserting initial list membership data...")
+          val q1 = for {
+            l <- mailinglists
+            u <- users
+          } memberships += MailinglistMembership(l.id, u.id, true, true)
+        }
       }
     }
   }

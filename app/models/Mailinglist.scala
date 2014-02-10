@@ -25,7 +25,7 @@ object Mailinglist {
 }
 
 class Mailinglists(tag: Tag) extends Table[Mailinglist](tag, "Mailinglists") {
-  def id = column[MailinglistId]("id", O.PrimaryKey)
+  def id = column[MailinglistId]("id", O.PrimaryKey, O.AutoInc)
   def email = column[String]("email", O.NotNull)
   def name = column[String]("name", O.NotNull)
 

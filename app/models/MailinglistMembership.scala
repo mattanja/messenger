@@ -30,4 +30,6 @@ class MailinglistMemberships(tag: Tag) extends Table[MailinglistMembership](tag,
 
   val createMailinglistMembership = MailinglistMembership.apply _
   def * = (mailinglistId, userId, isApproved, isActive) <> (createMailinglistMembership.tupled, MailinglistMembership.unapply)
+  
+  def user = Models.users.filter(_.id === userId)
 }

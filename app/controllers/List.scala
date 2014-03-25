@@ -72,14 +72,11 @@ object List extends BaseController with Secured {
   @ApiOperation(value = "Get mailinglists", notes = "Returns all mailinglists", httpMethod = "GET")
   def list = IsAuthenticated { username =>
     implicit request =>
-      Async {
-        UserService.findByEmail(username).map { user =>
-          Promise.pure(
-            render {
-              case Accepts.Json() => Ok(Json.toJson(MailinglistService.table.list()))
-            })
-        }.getOrElse(Promise.pure(Forbidden))
-      }
+      UserService.findByEmail(username).map { user =>
+          render {
+            case Accepts.Json() => Ok(Json.toJson(MailinglistService.table.list()))
+          }
+      }.getOrElse(Forbidden)
   }
 
   /**
@@ -121,18 +118,15 @@ object List extends BaseController with Secured {
   def detail(
     @ApiParam(value = "Email of the list")@PathParam("email") email: String) = IsAuthenticated { username =>
     implicit request =>
-      Async {
-        UserService.findByEmail(username).map { user =>
-          Promise.pure(
-            render {
-              // For regular request render empty view only
-              case Accepts.Html() => Ok(views.html.List.detail(user, email)) //, models.Mailinglist.findByEmailWithUsers(email), user))
-              // Get data for JSON request
-              // TODO add members info
-              case Accepts.Json() => Ok(Json.toJson(MailinglistService.findByEmail(email)))
-            })
-        }.getOrElse(Promise.pure(Forbidden))
-      }
+      UserService.findByEmail(username).map { user =>
+          render {
+            // For regular request render empty view only
+            case Accepts.Html() => Ok(views.html.List.detail(user, email)) //, models.Mailinglist.findByEmailWithUsers(email), user))
+            // Get data for JSON request
+            // TODO add members info
+            case Accepts.Json() => Ok(Json.toJson(MailinglistService.findByEmail(email)))
+          }
+      }.getOrElse(Forbidden)
   }
 
   /**

@@ -1,6 +1,7 @@
 package controllers
 
 import play.api._
+import play.api.db.slick._
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
@@ -10,11 +11,9 @@ import play.api.libs.json._
 import play.api.Play.current
 import models._
 import service._
-
-// DB
 import scala.slick.driver.H2Driver.simple._
 
-trait Application extends BaseController {
+trait Application extends Controller {
   this: Controller =>
 
   object UserService extends UserService
@@ -22,7 +21,7 @@ trait Application extends BaseController {
   /**
    * Index page
    */
-  def index = Action { implicit request =>
+  def index = DBAction { implicit request =>
     request.session.get("email") flatMap (email => UserService.findByEmail(email)) map { user =>
       Ok(views.html.index(user))
     } getOrElse {
@@ -44,14 +43,14 @@ trait Application extends BaseController {
   /**
    * Login page.
    */
-  def login = Action { implicit request =>
+  def login = DBAction { implicit request =>
     Ok(views.html.login(loginForm))
   }
 
   /**
    * Handle login form submission.
    */
-  def authenticate = Action { implicit request =>
+  def authenticate = DBAction { implicit request =>
     loginForm.bindFromRequest.fold(
       formWithErrors => BadRequest(views.html.login(formWithErrors)),
       user => Redirect(routes.List.index).withSession("email" -> user._1))
@@ -60,7 +59,7 @@ trait Application extends BaseController {
   /**
    * Logout and clean the session.
    */
-  def logout = Action {
+  def logout = DBAction {
     Redirect(routes.Application.login).withNewSession.flashing(
       "success" -> "You've been logged out")
   }

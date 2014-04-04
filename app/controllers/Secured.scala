@@ -1,6 +1,7 @@
 package controllers
 
 import play.api._
+import play.api.db.slick._
 import play.api.mvc._
 import play.api.mvc.Security._
 import play.api.mvc.Results._
@@ -38,6 +39,14 @@ trait Secured {
       Action(request => f(user)(request))
   	}
 
+  /**
+   * 
+   */
+  def AuthenticatedDbAction(f: => String => DBSessionRequest[_] => SimpleResult) =
+    play.api.mvc.Security.Authenticated(username, onUnauthorized) { user =>
+      DBAction(request => f(user)(request))
+  	}
+  
   /**
    * Check if the connected user is a member of this project.
    */
